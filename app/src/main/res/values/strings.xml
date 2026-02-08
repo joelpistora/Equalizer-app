@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Signal Lab</string>
+    <string name="videoButton">Video Lab</string>
+    <string name="audioButton">Audio Lab</string>
+    <string name="accButton">Accelerometer Lab</string>
+    <string name="startButton">Start</string>
+    <string name="stopButton">Stop</string>
+    <string name="audioRec">Recording</string>
+    <string name="desc_processed_image">Processed image</string>
+
+
+</resources>
