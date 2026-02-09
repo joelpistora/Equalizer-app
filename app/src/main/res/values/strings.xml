@@ -7,6 +7,10 @@
     <string name="stopButton">Stop</string>
     <string name="audioRec">Recording</string>
     <string name="desc_processed_image">Processed image</string>
+    <string name="stop_button">Stop</string>
+    <string name="start_button">Start</string>
+    <string name="import_mp3_button">Import MP3</string>
+    <string name="recording_indicator" />
 
 
 </resources>
