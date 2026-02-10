@@ -47,12 +47,11 @@ public class Filter {
                 a2 = 1 - alpha;
         }
     }
-    public float process(float x){
-        double y = ((b0/a0)*x + (b1/a0)*z1 + (b2/a0)*z2 - (a1/a0)*z1 - (a2/a0)*z2);
-        z2 = z1;
-        z1 = x;
-
-        return (float)y;
+    public float process(float x) {
+        double out = (b0 / a0) * x + z1;
+        z1 = (b1 / a0) * x - (a1 / a0) * out + z2;
+        z2 = (b2 / a0) * x - (a2 / a0) * out;
+        return (float) out;
     }
     public void reset(){
         z1 = 0;

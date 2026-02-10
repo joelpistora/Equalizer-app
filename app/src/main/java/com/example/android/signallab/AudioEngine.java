@@ -1,8 +1,11 @@
 package com.example.android.signallab;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
 
 public class AudioEngine {
     private static final String TAG = "AudioEngine";
@@ -35,27 +38,27 @@ public class AudioEngine {
                 AUDIO_FORMAT,
                 CHANNEL_CONFIG
         );
-    audioTrack = new AudioTrack.Builder()
-            .setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build())
-            .setAudioFormat(new AudioFormat.Builder()
-                    .setEncoding(AUDIO_FORMAT)
-                    .setSampleRate(SAMPLE_RATE)
-                    .setChannelMask(CHANNEL_CONFIG)
-                    .build())
-            .setBufferSizeInBytes(minBufferSize)
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build();
+        track = new AudioTrack.Builder()
+                .setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(AUDIO_FORMAT)
+                        .setSampleRate(SAMPLE_RATE)
+                        .setChannelMask(CHANNEL_CONFIG)
+                        .build())
+                .setBufferSizeInBytes(minBufferSize)
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build();
     }
     public void setBassGain(float gain){
         bassGain = gain;
     }
-    public void midGain(float gain){
+    public void setMidGain(float gain){
         midGain = gain;
     }
-    public void trebleGain(float gain){
+    public void setTrebleGain(float gain){
         trebleGain = gain;
     }
     
