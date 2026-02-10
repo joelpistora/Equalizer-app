@@ -48,29 +48,33 @@ public class AudioCapture extends AppCompatActivity {
     private volatile Session ffmpegSession;
     private long recordingStartTimeMs = 0;
 
+    private AudioEngine audioEngine;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_capture);
+        audioEngine = new AudioEngine(this);
         Button startButton = findViewById(R.id.record);
         Button stopButton = findViewById(R.id.stop);
         startButton.setOnClickListener(v -> startRecording());
         stopButton.setOnClickListener(v -> {
             stopRecording();
-            stopDecoding();
+            stopDecoding();//allows user to manually stop Mp3 decoding
         });
-        recordingIndicator = findViewById(R.id.recordingIndicator);
-        mp3Picker = registerForActivityResult(
+        recordingIndicator = findViewById(R.id.recordingIndicator);//recording status
+        mp3Picker = registerForActivityResult(//when user selects a file, onMp3Selected is called
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri == null) return;
-                    onMp3Selected(uri);
+                    onMp3Selected(uri);//starts decoding pipeline(FFmped-PCMframes)
                 }
         );
-        Button importButton = findViewById(R.id.importMp3);
-        importButton.setOnClickListener(v -> {
+        Button importButton = findViewById(R.id.importMp3);//import mp3 button
+        importButton.setOnClickListener(v -> {//stops any active audio source before importing a new one
             stopRecording();
             stopDecoding();
             mp3Picker.launch("audio/mpeg");
@@ -79,13 +83,13 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() {//rechecking mic permissions & then AudioRecord
         super.onResume();
         checkAndRequestPermissions();
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause() {//stoping all audio work
         stopRecording();
         stopDecoding();
         releaseAudio();
@@ -117,12 +121,12 @@ public class AudioCapture extends AppCompatActivity {
         }
     }
 
-    private void initializeAudio() {
+    private void initializeAudio() {//creates and configures AudioRecord for mic capture
         if (record != null) return;
-        try {
+        try {//asking android for minimum safe buffer size
             int minBuffer = AudioRecord.getMinBufferSize(
                     SAMPLE_RATE, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-            record = new AudioRecord.Builder()
+            record = new AudioRecord.Builder()//building AudioRecord with the required audio format (48kHz, PCM16, stereo)
                     .setAudioSource(MediaRecorder.AudioSource.MIC)
                     .setAudioFormat(new AudioFormat.Builder()
                             .setSampleRate(SAMPLE_RATE)
@@ -131,11 +135,11 @@ public class AudioCapture extends AppCompatActivity {
                             .build())
                     .setBufferSizeInBytes(minBuffer)
                     .build();
-            if (record.getState() != AudioRecord.STATE_INITIALIZED) {
+            if (record.getState() != AudioRecord.STATE_INITIALIZED) {//verifying initialization succeeded
                 Log.e(TAG, "AudioRecord failed to initialize");
                 record = null;
             }
-        } catch (SecurityException se) {
+        } catch (SecurityException se) {//checking permissions just to be safe
             Log.e(TAG, "Permission missing: " + se.getMessage());
         } catch (Exception e) {
             Log.e(TAG, "Unexpected error initializing audio: " + e.getMessage());
@@ -143,56 +147,54 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void releaseAudio() {
-        if (record != null) {
+        if (record != null) {//releases AudioRecord resources when activity stops or pauses
             record.release();
             record = null;
         }
     }
 
-    private void startRecording() {
+    private void startRecording() {//initializing AudioRecord
         if (record == null) {
             initializeAudio();
             if (record == null) return;
         }
         isRecording = true;
-        recordingStartTimeMs = android.os.SystemClock.elapsedRealtime();
-        record.startRecording();
-        recordingThread = new Thread(this::recordLoop);
+        recordingStartTimeMs = android.os.SystemClock.elapsedRealtime();//saving start time, max 1min recording
+        record.startRecording();//capturing audio from mic
+        recordingThread = new Thread(this::recordLoop);//background loop that reads audio continuously
         recordingThread.start();
-        runOnUiThread(() -> recordingIndicator.setVisibility(View.VISIBLE));
+        runOnUiThread(() -> recordingIndicator.setVisibility(View.VISIBLE));//UI shows recording indicator
     }
 
     private void recordLoop() {
         while (isRecording) {
             if (android.os.SystemClock.elapsedRealtime() - recordingStartTimeMs >= MAX_RECORDING_MS) {
-                stopRecording();
+                stopRecording();//stops recording after 1 min
                 break;
             }
-            int read = record.read(inBuffer, 0, BUFFER_SIZE);
+            int read = record.read(inBuffer, 0, BUFFER_SIZE);//reading raw audio bytes from mic
             if (read <= 0) continue;
-            int samplesRead = read / 2;
+            int samplesRead = read / 2;//converting bytes to samples (number of samples=bytes/2)
             ByteBuffer.wrap(inBuffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortBuffer, 0, samplesRead);
             int offset = 0;
             while (offset < samplesRead) {
-                int remaining = (AUDIO_BUFFER_SIZE * 2) - audioBufferIndex;
+                int remaining = (AUDIO_BUFFER_SIZE * 2) - audioBufferIndex;//space left until full frame
                 int toCopy = Math.min(remaining, samplesRead - offset);
                 System.arraycopy(shortBuffer, offset, audioBuffer, audioBufferIndex, toCopy);
                 audioBufferIndex += toCopy;
                 offset += toCopy;
-                // Call updateCoefficients once the buffer is full
-                if (audioBufferIndex >= AUDIO_BUFFER_SIZE*2) {
-                    //updateCoefficients(audioBuffer);
-                    onFrameReady(audioBuffer);
-                    audioBufferIndex = 0;
+                if (audioBufferIndex >= AUDIO_BUFFER_SIZE*2) {//frame complete(1920 shorts)
+                    onFrameReady(audioBuffer);//one full 20ms stereo frame
+                    audioBufferIndex = 0;//resetting for next frame
                 }
             }
         }
     }
 
     private void stopRecording() {
-        isRecording = false;
+        isRecording = false;//turning recording off
         if (record != null && record.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING)
-            record.stop();
+            record.stop();//stopping AudioRecord capturing from mic if its still recording
         if (recordingThread != null && Thread.currentThread() != recordingThread) {
             try {
                 recordingThread.join();
@@ -200,46 +202,47 @@ public class AudioCapture extends AppCompatActivity {
             }
         }
         recordingThread = null;
-        runOnUiThread(() -> recordingIndicator.setVisibility(View.GONE));
+        runOnUiThread(() -> recordingIndicator.setVisibility(View.GONE));//hiding UI recording indicator
     }
 
 
-    private void onMp3Selected(@NonNull Uri uri) {
+    private void onMp3Selected(@NonNull Uri uri) {//called after user selects an Mp3 from file picker
         Log.d(TAG, "MP3 selected: " + uri);
-        startMp3DecodeToPcm(uri);
+        startMp3DecodeToPcm(uri);//starting decoding mp3 to PCM
     }
 
     private void startMp3DecodeToPcm(@NonNull Uri uri) {
-        stopRecording();
+        stopRecording();//ensuring only one audio source runs at a time
         stopDecoding();
-        isDecoding = true;
-        decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));
+        isDecoding = true;//enabling decoding loop
+        decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));//background thread for decoding
         decodingThread.start();
     }
 
     private void decodeMp3ToPcmFile(@NonNull Uri uri) {
         try {
-            java.io.File inputFile = new java.io.File(getCacheDir(), "input.mp3");
+            java.io.File inputFile = new java.io.File(getCacheDir(), "input.mp3");//FFmpegKit works easiest with file paths
             try (java.io.InputStream in = getContentResolver().openInputStream(uri);
                  java.io.OutputStream out = new java.io.FileOutputStream(inputFile)) {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[8192];//temporary buffer for copying Mp3 stream (8KB is standard IO size)
                 int read;
                 while ((read = in.read(buffer)) > 0) {
                     out.write(buffer, 0, read);
                 }
             }
-            java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");
-            String command =
-                    "-y -i " + inputFile.getAbsolutePath() +
-                            " -f s16le -acodec pcm_s16le -ar 48000 -ac 2 " +
-                            outputFile.getAbsolutePath();
+            //-f s16le is for raw PCM 16-bit little-endian
+            //-ar 48000 is for sample rate
+            //-ac 2 is for 2 channel stereo
+            java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");//decoded raw PCM
+            String command = "-y -i " + inputFile.getAbsolutePath() +
+                    " -f s16le -acodec pcm_s16le -ar 48000 -ac 2 " + outputFile.getAbsolutePath();
             Log.d(TAG, "Running FFmpeg: " + command);
             ffmpegSession = FFmpegKit.execute(command);
             Log.d(TAG, "Decode finished, returnCode = " + ffmpegSession.getReturnCode());
             ffmpegSession = null;
-            if (!isDecoding) return;
-            if (!outputFile.exists()) return;
-            Log.d(TAG, "PCM file path = " + outputFile.getAbsolutePath());
+            if (!isDecoding) return;//if user pressed stop during decode- exit
+            if (!outputFile.exists()) return;//if decode failed -exit
+            Log.d(TAG, "PCM file path = " + outputFile.getAbsolutePath());//read decoded PCM and feed frames into onFrameReady()
             feedPcmFileToFrames(outputFile);
         }
         catch (Exception e) {
@@ -248,25 +251,25 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void feedPcmFileToFrames(@NonNull java.io.File pcmFile) {
-        final int frameShorts = AUDIO_BUFFER_SIZE * 2;   // 960 * 2ch = 1920 short
-        final int frameBytes  = frameShorts * 2;         // 1920 * 2 bytes = 3840 bytes
+        final int frameShorts = AUDIO_BUFFER_SIZE * 2;//960 * 2ch = 1920 short
+        final int frameBytes  = frameShorts * 2;//1920 * 2 bytes = 3840 bytes
         byte[] pcmBytes = new byte[frameBytes];
         try (java.io.InputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(pcmFile))) {
             while (isDecoding) {
                 int total = 0;
-                while (total < frameBytes) {
+                while (total < frameBytes) {//reading full frame(3840 bytes)
                     int n = in.read(pcmBytes, total, frameBytes - total);
-                    if (n < 0) { // EOF
+                    if (n < 0) { //file ended
                         isDecoding = false;
                         return;
                     }
                     total += n;
                 }
-                ByteBuffer.wrap(pcmBytes)
+                ByteBuffer.wrap(pcmBytes)//converting raw PCM bytes to PCM16 short samples
                         .order(ByteOrder.LITTLE_ENDIAN)
                         .asShortBuffer()
                         .get(audioBuffer, 0, frameShorts);
-                onFrameReady(audioBuffer);
+                onFrameReady(audioBuffer);//full frame (same output format as mic)
             }
         } catch (Exception e) {
             Log.e(TAG, "feedPcmFileToFrames failed", e);
@@ -276,7 +279,7 @@ public class AudioCapture extends AppCompatActivity {
     private void stopDecoding() {
         isDecoding = false;
         audioBufferIndex = 0;
-        if (ffmpegSession != null) {
+        if (ffmpegSession != null) {//if FFmpeg is running - canceling it
             FFmpegKit.cancel(ffmpegSession.getSessionId());
             ffmpegSession = null;
         }
@@ -284,6 +287,6 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void onFrameReady(short[] audioBuffer) {
-        Log.d(TAG, "Frame ready: " + audioBuffer[0]);
+        audioEngine.processFrame(audioBuffer); // same format for MIC and MP3
     }
 }
