@@ -18,6 +18,16 @@ public class AudioEngine {
     private volatile float midGain = 1.0f;
     private volatile float trebleGain = 1.0f;
 
+    private Filter lowPass;
+    private Filter bandPass;
+    private Filter highPass;
+
+    // Chosen parameters
+    private static final int SAMPLE_RATE = 44100; // target sample rate
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+    private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+
+
     public AudioEngine(Context context) {
         this.context = context;
     }
@@ -38,6 +48,28 @@ public class AudioEngine {
         }
     }
 
+    private void processFrame(float[] buffer){
+        short[] processedBuffer = new short[audioBuffer.length];
+        for(int i = 0; i < audioBuffer.length; i++){
+            float sample = buffer[i];
+
+            float bass = lowPass.process(sample)*bassGain;
+            float mid = bandPass.process(sample)*midGain;
+            float treble = highPass.process(sample)*trebleGain;
+
+            //output
+            float output = bass + mid + treble;
+            processedBuffer[i] = (short) (output);
+
+        }
+
+    }
+    private void initializeFilter(){
+        lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 3000, 0.707, Filter.Type.HIGHPASS);
+
+    }
     public void setBassGain(float gain){
         bassGain = gain;
     }
