@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 import android.widget.TextView;
 
@@ -54,14 +55,18 @@ public class AudioCapture extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_capture);
-        audioEngine = new AudioEngine(this);
+
         Button startButton = findViewById(R.id.record);
         Button stopButton = findViewById(R.id.stop);
+
         startButton.setOnClickListener(v -> startRecording());
         stopButton.setOnClickListener(v -> {
             stopRecording();
             stopDecoding();//allows user to manually stop Mp3 decoding
         });
+
+        audioEngine = AudioEngine.getInstance(this);
+
         recordingIndicator = findViewById(R.id.recordingIndicator);//recording status
         mp3Picker = registerForActivityResult(//when user selects a file, onMp3Selected is called
                 new ActivityResultContracts.GetContent(),
@@ -106,6 +111,14 @@ public class AudioCapture extends AppCompatActivity {
                 Log.e(TAG, "Permission denied");
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRecording();
+        stopDecoding();
+        releaseAudio();
     }
 
     private void checkAndRequestPermissions() {
@@ -164,24 +177,52 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void recordLoop() {
+
+        // Create reusable ByteBuffer + ShortBuffer once
+        ByteBuffer byteBuffer = ByteBuffer
+                .wrap(inBuffer)
+                .order(ByteOrder.LITTLE_ENDIAN);
+
+        ShortBuffer shortView = byteBuffer.asShortBuffer();
+
         while (isRecording) {
-            if (android.os.SystemClock.elapsedRealtime() - recordingStartTimeMs >= MAX_RECORDING_MS) {
-                stopRecording();//stops recording after 1 min
+            long elapsed = android.os.SystemClock.elapsedRealtime() - recordingStartTimeMs;
+            if (elapsed >= MAX_RECORDING_MS) {
+                isRecording = false;
                 break;
             }
+
             int read = record.read(inBuffer, 0, BUFFER_SIZE);   //reading raw audio bytes from mic
             if (read <= 0) continue;
+
             int samplesRead = read / 2; //converting bytes to samples (number of samples=bytes/2)
-            ByteBuffer.wrap(inBuffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortBuffer, 0, samplesRead);
+
+            // Reset buffer position before reading
+            byteBuffer.position(0);
+            shortView.position(0);
+            shortView.get(shortBuffer, 0, samplesRead);
+
             int offset = 0;
+
             while (offset < samplesRead) {
-                int remaining = (AUDIO_BUFFER_SIZE * 2) - audioBufferIndex;//space left until full frame
+                int remaining = audioBuffer.length - audioBufferIndex; //space left until full frame
                 int toCopy = Math.min(remaining, samplesRead - offset);
-                System.arraycopy(shortBuffer, offset, audioBuffer, audioBufferIndex, toCopy);
+
+                System.arraycopy(
+                        shortBuffer,
+                        offset,
+                        audioBuffer,
+                        audioBufferIndex,
+                        toCopy
+                );
+
                 audioBufferIndex += toCopy;
                 offset += toCopy;
-                if (audioBufferIndex >= AUDIO_BUFFER_SIZE*2) {  //frame complete(1920 shorts)
-                    onFrameReady(audioBuffer);  //one full 20ms stereo frame
+
+                if (audioBufferIndex >= audioBuffer.length) {  //frame complete(1920 shorts)
+                    // Pass a copy so buffer reuse if safe
+                    short[] frameCopy = audioBuffer.clone();
+                    onFrameReady(frameCopy);    //one full 20ms stereo frame
                     audioBufferIndex = 0;       //resetting for next frame
                 }
             }
