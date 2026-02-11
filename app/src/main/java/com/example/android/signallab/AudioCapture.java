@@ -66,6 +66,7 @@ public class AudioCapture extends AppCompatActivity {
 
 
         startButton.setOnClickListener(v -> startRecording());
+
         stopButton.setOnClickListener(v -> {
             stopRecording();
             stopDecoding();//allows user to manually stop Mp3 decoding

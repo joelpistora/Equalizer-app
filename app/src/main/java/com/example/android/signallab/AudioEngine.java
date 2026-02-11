@@ -3,31 +3,21 @@ package com.example.android.signallab;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioRecord;
 import android.media.AudioTrack;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-import android.se.omapi.Session;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AudioEngine {
     private static AudioEngine instance;
-    private static final String TAG = "AudioEngine";
     private final Context context;
-
     private List<Float> audioTrack = new ArrayList<>(); // Stores the recorded audio
-    private AudioTrack track;
     private Thread audioThread;
     // EQ gains
     private volatile float bassGain = 1.0f;
     private volatile float midGain = 1.0f;
     private volatile float trebleGain = 1.0f;
 
-    // Audio decoding
-    private MediaExtractor extractor;
-    private MediaCodec decoder;
     private Filter lowPass;
     private Filter bandPass;
     private Filter highPass;
@@ -91,7 +81,3 @@ public class AudioEngine {
     }
     
 }
-
-
-
-
