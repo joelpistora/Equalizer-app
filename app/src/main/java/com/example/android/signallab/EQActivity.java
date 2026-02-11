@@ -59,6 +59,8 @@ public class EQActivity extends AppCompatActivity {
 
         seekBarListener();
 
+        seekBarListener();
+
         visualEngine.setSpectrumListener(spectrum -> {
             Log.d(TAG, "Received spectrum: " + Arrays.toString(spectrum));
             runOnUiThread(() -> {
