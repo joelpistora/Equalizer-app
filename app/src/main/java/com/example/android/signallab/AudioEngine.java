@@ -4,10 +4,14 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AudioEngine {
     private static final String TAG = "AudioEngine";
-    private static final int PERMISSION_REQUEST_CODE = 1001;
     private final Context context;
+
+    private List<Float> audioTrack = new ArrayList<>(); // Stores the recorded audio
     private AudioTrack track;
     private Thread audioThread;
     // EQ gains
@@ -27,28 +31,16 @@ public class AudioEngine {
 
     public AudioEngine(Context context) {
         this.context = context;
-        initAudioTrack();
     }
-    private void initAudioTrack(){
-        int minBufferSize = AudioTrack.getMinBufferSize(
-                SAMPLE_RATE,
-                AUDIO_FORMAT,
-                CHANNEL_CONFIG
-        );
-    audioTrack = new AudioTrack.Builder()
-            .setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build())
-            .setAudioFormat(new AudioFormat.Builder()
-                    .setEncoding(AUDIO_FORMAT)
-                    .setSampleRate(SAMPLE_RATE)
-                    .setChannelMask(CHANNEL_CONFIG)
-                    .build())
-            .setBufferSizeInBytes(minBufferSize)
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build();
+
+    // Adds audio samples to audioTrack
+    public synchronized void appendBuffer(short[] buffer) {
+        for (short value : buffer) {
+            float normalized = value / 32768f;  // Convert PCM16 to float
+            audioTrack.add(normalized);
+        }
     }
+
     public void setBassGain(float gain){
         bassGain = gain;
     }

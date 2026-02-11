@@ -50,9 +50,6 @@ public class AudioCapture extends AppCompatActivity {
 
     private AudioEngine audioEngine;
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,9 +169,9 @@ public class AudioCapture extends AppCompatActivity {
                 stopRecording();//stops recording after 1 min
                 break;
             }
-            int read = record.read(inBuffer, 0, BUFFER_SIZE);//reading raw audio bytes from mic
+            int read = record.read(inBuffer, 0, BUFFER_SIZE);   //reading raw audio bytes from mic
             if (read <= 0) continue;
-            int samplesRead = read / 2;//converting bytes to samples (number of samples=bytes/2)
+            int samplesRead = read / 2; //converting bytes to samples (number of samples=bytes/2)
             ByteBuffer.wrap(inBuffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortBuffer, 0, samplesRead);
             int offset = 0;
             while (offset < samplesRead) {
@@ -183,9 +180,9 @@ public class AudioCapture extends AppCompatActivity {
                 System.arraycopy(shortBuffer, offset, audioBuffer, audioBufferIndex, toCopy);
                 audioBufferIndex += toCopy;
                 offset += toCopy;
-                if (audioBufferIndex >= AUDIO_BUFFER_SIZE*2) {//frame complete(1920 shorts)
-                    onFrameReady(audioBuffer);//one full 20ms stereo frame
-                    audioBufferIndex = 0;//resetting for next frame
+                if (audioBufferIndex >= AUDIO_BUFFER_SIZE*2) {  //frame complete(1920 shorts)
+                    onFrameReady(audioBuffer);  //one full 20ms stereo frame
+                    audioBufferIndex = 0;       //resetting for next frame
                 }
             }
         }
@@ -287,6 +284,6 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void onFrameReady(short[] audioBuffer) {
-        audioEngine.processFrame(audioBuffer); // same format for MIC and MP3
+        audioEngine.appendBuffer(audioBuffer); // same format for MIC and MP3
     }
 }
