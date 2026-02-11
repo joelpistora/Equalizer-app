@@ -185,11 +185,17 @@ public class AudioEngine {
     public void setBassGain(float gain){
         bassGain = gain;
     }
-    public void midGain(float gain){
+    public void setMidGain(float gain){
         midGain = gain;
     }
-    public void trebleGain(float gain){
+    public void setTrebleGain(float gain){
         trebleGain = gain;
     }
-    
+    public void release() {
+        if(track != null){
+            track.stop();
+            track.release();
+            track = null;
+        }
+    }
 }
