@@ -10,26 +10,13 @@ import java.util.List;
 
 public class AudioEngine {
     private static AudioEngine instance;
-    private static final String TAG = "AudioEngine";
     private final Context context;
-
     private List<Float> audioTrack = new ArrayList<>(); // Stores the recorded audio
-    private AudioTrack track;
     private Thread audioThread;
     // EQ gains
     private volatile float bassGain = 1.0f;
     private volatile float midGain = 1.0f;
     private volatile float trebleGain = 1.0f;
-
-    // Audio decoding
-    private MediaExtractor extractor;
-    private MediaCodec decoder;
-
-    // Chosen parameters
-    private static final int SAMPLE_RATE = 44100; // target sample rate
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
-    private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-
 
     public AudioEngine(Context context) {
         this.context = context;
