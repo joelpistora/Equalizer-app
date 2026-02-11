@@ -26,6 +26,8 @@ import android.widget.TextView;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.Session;
 
+import android.content.Intent;
+
 public class AudioCapture extends AppCompatActivity {
     private static final String TAG = "AudioCapture";
     private static final int PERMISSION_REQUEST_CODE = 1001;
@@ -51,6 +53,7 @@ public class AudioCapture extends AppCompatActivity {
 
     private AudioEngine audioEngine;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,12 +61,21 @@ public class AudioCapture extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.record);
         Button stopButton = findViewById(R.id.stop);
+        Button openEqButton = findViewById(R.id.cont);
+
+
 
         startButton.setOnClickListener(v -> startRecording());
 
         stopButton.setOnClickListener(v -> {
             stopRecording();
             stopDecoding();//allows user to manually stop Mp3 decoding
+        });
+
+        openEqButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(AudioCapture.this,
+                            EQActivity.class);
+                    startActivity(intent);
         });
 
         audioEngine = AudioEngine.getInstance(this);
