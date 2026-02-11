@@ -191,11 +191,4 @@ public class AudioEngine {
     public void setTrebleGain(float gain){
         trebleGain = gain;
     }
-    public void release() {
-        if(track != null){
-            track.stop();
-            track.release();
-            track = null;
-        }
-    }
 }

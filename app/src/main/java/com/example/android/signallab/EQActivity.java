@@ -57,6 +57,7 @@ public class EQActivity extends AppCompatActivity {
 
                 if (idx == R.id.bassBar) {
                     audioEngine.setBassGain(progress);
+                    Log.d(TAG, "Bass gain: " + progress);
 
                 } else if (idx == R.id.midBar) {
                     audioEngine.setMidGain(progress);
