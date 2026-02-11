@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AudioEngine {
+    private static AudioEngine instance;
     private static final String TAG = "AudioEngine";
     private final Context context;
 
@@ -39,6 +40,14 @@ public class AudioEngine {
 
     public AudioEngine(Context context) {
         this.context = context;
+    }
+
+    public static synchronized AudioEngine getInstance(Context context) {
+        if (instance == null) {
+            instance = new AudioEngine(context.getApplicationContext());
+        }
+
+        return instance;
     }
 
     // Adds audio samples to audioTrack
