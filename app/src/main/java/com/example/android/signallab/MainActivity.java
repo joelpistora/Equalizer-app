@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         Button recButton = findViewById(R.id.mRecorderButton);
         Button vidButton = findViewById(R.id.mVideoButton);
 
-        Button recButt
 
         accButton.setOnClickListener(v -> {
             Intent startAccActivityIntent = new Intent(MainActivity.this,

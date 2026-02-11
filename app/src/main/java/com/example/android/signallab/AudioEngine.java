@@ -49,7 +49,7 @@ public class AudioEngine {
         }
     }
 
-    private void processFrame(short[] buffer){
+    private void processFrame(float[] buffer){
         short[] processedBuffer = new short[audioBuffer.length];
         for(int i = 0; i < audioBuffer.length; i++){
             float sample = buffer[i];
@@ -64,8 +64,6 @@ public class AudioEngine {
 
         }
 
-        // TODO: Output of processed frame;
-        track.write(processedBuffer, 0, processedBuffer.length);
     }
     private void initializeFilter(){
         lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);

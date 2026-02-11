@@ -1,30 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/eqTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EQUALIZER"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
 
     <LinearLayout
+        android:id="@+id/slidersContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:background="#000000">
+        app:layout_constraintTop_toBottomOf="@id/eqTitle"
+        app:layout_constraintBottom_toTopOf="@id/record"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bass" />
+        <!-- Bass Column -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-        <SeekBar
-            android:id="@+id/bassBar"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:max="100"
-            android:progress="50"
-            android:rotation="270" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BASS"
+                android:textColor="#BB86FC"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/bassBar"
+                android:layout_width="320dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="140dp"
+                android:max="100"
+                android:progress="50"
+                android:rotation="270"
+                android:progressDrawable="@drawable/thick_seekbar_track"
+                android:thumb="@drawable/slider_thumb"
+                android:splitTrack="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="140dp"
+                android:text="60Hz"
+                android:textColor="#66FFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Mid Column -->
+
+        <!-- Treble Column -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MID"
+                android:textColor="#03DAC6"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/midBar"
+                android:layout_width="320dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="140dp"
+                android:max="100"
+                android:progress="50"
+                android:progressDrawable="@drawable/thick_seekbar_track"
+                android:rotation="270"
+                android:splitTrack="false"
+                android:thumb="@drawable/slider_thumb" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="140dp"
+                android:text="1kHz"
+                android:textColor="#66FFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TREBLE"
+                android:textColor="#CF6679"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/trebleBar"
+                android:layout_width="320dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="140dp"
+                android:max="100"
+                android:progress="50"
+                android:rotation="270"
+                android:progressDrawable="@drawable/thick_seekbar_track"
+                android:thumb="@drawable/slider_thumb"
+                android:splitTrack="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="140dp"
+                android:text="10kHz"
+                android:textColor="#66FFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/record"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="PLAY"
+        android:backgroundTint="#BB86FC"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@id/stop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="STOP"
+        android:backgroundTint="#33FFFFFF"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
