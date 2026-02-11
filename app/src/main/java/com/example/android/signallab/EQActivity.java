@@ -42,6 +42,7 @@ public class EQActivity extends AppCompatActivity {
         //Play, select, stop buttons are not ready.
         playButton = findViewById(R.id.play);
         stopButton = findViewById(R.id.stop);
+        // TODO: Add go back to record button
 
         playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
         stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
