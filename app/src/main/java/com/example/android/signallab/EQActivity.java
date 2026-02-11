@@ -15,7 +15,6 @@ public class EQActivity extends AppCompatActivity {
     private static final int REQUEST_AUDIO_FILE = 2001;
     private static final String TAG = "EQEngine";
     private AudioEngine audioEngine;
-    private VisualEngine visualEngine;
 
     private SeekBar bassBar, midBar, trebleBar;
     private Button playButton, stopButton, selectFileButton;
@@ -48,6 +47,8 @@ public class EQActivity extends AppCompatActivity {
 
         playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
         stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
+
+        seekBarListener();
 
         visualEngine.setSpectrumListener(spectrum -> {
             runOnUiThread(() -> {
