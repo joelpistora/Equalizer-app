@@ -160,7 +160,12 @@ public class AudioEngine {
                 // Apply EQ to frame
                 // applyEQ(frame);
 
-                visualEngine.processFrame(frame);
+                float[] floatFrame = new float[frame.length];
+                for (int i = 0; i < frame.length; i++) {
+                    floatFrame[i] = frame[i] / 32768f;
+                }
+
+                visualEngine.processFrame(floatFrame);
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 
