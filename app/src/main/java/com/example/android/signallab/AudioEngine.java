@@ -49,8 +49,8 @@ public class AudioEngine {
     }
 
     private void processFrame(float[] buffer){
-        short[] processedBuffer = new short[audioBuffer.length];
-        for(int i = 0; i < audioBuffer.length; i++){
+        short[] processedBuffer = new short[buffer.length];
+        for(int i = 0; i < buffer.length; i++){
             float sample = buffer[i];
 
             float bass = lowPass.process(sample)*bassGain;

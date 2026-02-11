@@ -29,28 +29,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        Button accButton = findViewById(R.id.mAccelerometerButton);
         Button recButton = findViewById(R.id.mRecorderButton);
-        Button vidButton = findViewById(R.id.mVideoButton);
-
-
-        accButton.setOnClickListener(v -> {
-            Intent startAccActivityIntent = new Intent(MainActivity.this,
-                    AccelerometerActivity.class);
-            startActivity(startAccActivityIntent);
-        });
 
         recButton.setOnClickListener(v -> {
-            Intent startRecordActivityIntent = new Intent(MainActivity.this,
-                    RecorderActivity.class);
-            startActivity(startRecordActivityIntent);
+            Intent startAudioCaptureIntent = new Intent(MainActivity.this,
+                    AudioCapture.class);
+            startActivity(startAudioCaptureIntent);
         });
 
-        vidButton.setOnClickListener(v -> {
-            Intent startVideoActivityIntent = new Intent(MainActivity.this,
-                    VideoActivity.class);
-            startActivity(startVideoActivityIntent);
-        });
     }
 
     private boolean checkAndRequestPermissions() {
@@ -89,9 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 setupButtons();
             } else {
                 // Permissions not granted, disable buttons
-                findViewById(R.id.mAccelerometerButton).setEnabled(false);
                 findViewById(R.id.mRecorderButton).setEnabled(false);
-                findViewById(R.id.mVideoButton).setEnabled(false);
             }
         }
     }

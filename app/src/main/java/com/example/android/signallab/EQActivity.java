@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class EQActivity extends AppCompatActivity {
     private static final int REQUEST_AUDIO_FILE = 2001;
+    private static final String TAG = "EQActivity";
+
 
     private AudioEngine audioEngine;
 

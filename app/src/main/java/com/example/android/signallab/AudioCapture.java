@@ -175,6 +175,7 @@ public class AudioCapture extends AppCompatActivity {
         recordingThread = new Thread(this::recordLoop);//background loop that reads audio continuously
         recordingThread.start();
         runOnUiThread(() -> recordingIndicator.setVisibility(View.VISIBLE));//UI shows recording indicator
+        Log.d(TAG, "Started recording");
     }
 
     private void recordLoop() {
@@ -197,6 +198,8 @@ public class AudioCapture extends AppCompatActivity {
             if (read <= 0) continue;
 
             int samplesRead = read / 2; //converting bytes to samples (number of samples=bytes/2)
+
+            Log.d(TAG, "Read samples : " + samplesRead);
 
             // Reset buffer position before reading
             byteBuffer.position(0);
@@ -240,6 +243,7 @@ public class AudioCapture extends AppCompatActivity {
             } catch (InterruptedException ignored) {
             }
         }
+        Log.d(TAG, "Stopped recording");
         recordingThread = null;
         runOnUiThread(() -> recordingIndicator.setVisibility(View.GONE));//hiding UI recording indicator
     }
