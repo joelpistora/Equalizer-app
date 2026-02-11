@@ -37,14 +37,43 @@ public class EQActivity extends AppCompatActivity {
         midBar = findViewById(R.id.midBar);
         trebleBar = findViewById(R.id.trebleBar);
 
-
-        //Play, select, stop buttons are not ready.
-        //playButton = findViewById(R.id.play);
-        //stopButton = findViewById(R.id.stop);
-        //selectFileButton = findViewById(R.id.selectFile);
-
     }
 
+    private void seekBarListener() {
+
+        SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int idx = seekBar.getId();
+
+                if (idx == R.id.bassBar) {
+                    audioEngine.setBassGain(progress);
+
+                } else if (idx == R.id.midBar) {
+                    audioEngine.setMidGain(progress);
+
+                } else if (idx == R.id.trebleBar) {
+                    audioEngine.setTrebleGain(progress);
+                }
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        };
+
+        // Attach listener to all bars
+        bassBar.setOnSeekBarChangeListener(listener);
+        midBar.setOnSeekBarChangeListener(listener);
+        trebleBar.setOnSeekBarChangeListener(listener);
+    }
+
+    private void resetBars(){
+
+    }
     private void initalizeAudio() {
         // Setup Output Audio
         int trackBuffer = AudioTrack.getMinBufferSize(
