@@ -15,6 +15,7 @@ public class EQActivity extends AppCompatActivity {
     private static final int REQUEST_AUDIO_FILE = 2001;
     private static final String TAG = "EQEngine";
     private AudioEngine audioEngine;
+    private VisualEngine visualEngine;
 
     private SeekBar bassBar, midBar, trebleBar;
     private Button playButton, stopButton, selectFileButton;
@@ -38,6 +39,7 @@ public class EQActivity extends AppCompatActivity {
         trebleBar = findViewById(R.id.trebleBar);
 
         audioEngine = AudioEngine.getInstance(this);
+        visualEngine = VisualEngine.getInstance();
 
         //Play, select, stop buttons are not ready.
         playButton = findViewById(R.id.play);
@@ -46,6 +48,12 @@ public class EQActivity extends AppCompatActivity {
 
         playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
         stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
+
+        visualEngine.setSpectrumListener(spectrum -> {
+            runOnUiThread(() -> {
+                spectrumView.updateSpectrum(spectrum);
+            });
+        });
     }
 
     private void seekBarListener() {

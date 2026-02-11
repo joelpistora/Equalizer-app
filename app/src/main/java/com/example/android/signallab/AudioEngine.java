@@ -18,6 +18,7 @@ public class AudioEngine {
 
     private AudioTrack track;
     private Thread playbackThread;
+    private VisualEngine visualEngine;
     private volatile boolean isPlaying;
     private int bufferPosition; // Current playback position
     // EQ gains
@@ -38,6 +39,7 @@ public class AudioEngine {
     public AudioEngine(Context context) {
         this.context = context;
         initializeAudioTrack();
+        visualEngine = VisualEngine.getInstance();
     }
 
     public static synchronized AudioEngine getInstance(Context context) {
@@ -152,8 +154,13 @@ public class AudioEngine {
                 short[] frame = new short[toWrite];
                 System.arraycopy(buffer, bufferPosition, frame, 0, toWrite);
 
+                // Possibly visualize the raw audio as well before the EQ
+                // visualEngine.processFrame(frame);
+
                 // Apply EQ to frame
                 // applyEQ(frame);
+
+                visualEngine.processFrame(frame);
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 

@@ -1,23 +1,46 @@
 package com.example.android.signallab;
 
+import android.content.Context;
+
 import org.jtransforms.fft.FloatFFT_1D;
 
 public class VisualEngine {
+
+    public interface SpectrumListener {
+        void onSpectrumReady(float[] spectrum);
+    }
+
+    private SpectrumListener listener;
+    private static VisualEngine instance;
+
     private static final int FFT_SIZE = 1024;
     private FloatFFT_1D fft;
     private float[] fft_buffer;
     private float[] spectrum;
-    private float[] sampleBuffer;
 
     public VisualEngine() {
         fft = new FloatFFT_1D(FFT_SIZE);
-        fft_buffer = new float[1024];
+        fft_buffer = new float[FFT_SIZE];
         spectrum = new float[FFT_SIZE / 2];
-        sampleBuffer = new float[FFT_SIZE];
-
     }
 
-    private void computeFFT() {
+    public static VisualEngine getInstance() {
+        if (instance == null) {
+            instance = new VisualEngine();
+        }
+        return instance;
+    }
+
+    public void processFrame(float[] buffer) {
+        float[] fftResult = computeFFT(buffer);
+
+        if (listener != null) {
+            listener.onSpectrumReady(fftResult);
+        }
+    }
+
+
+    private float[] computeFFT(float[] sampleBuffer) {
         for (int i = 0; i < FFT_SIZE; i++) {
             float window = 0.5f - 0.5f * (float) Math.cos(2 * Math.PI * i / FFT_SIZE);
             fft_buffer[2 * i] = sampleBuffer[i] * window;     // Real part.
@@ -26,8 +49,12 @@ public class VisualEngine {
         fft.complexForward(fft_buffer);
         for (int i = 0; i < FFT_SIZE; i++) {
             spectrum[i] = (float) Math.sqrt(fft_buffer[2 * i] * fft_buffer[2 * i]);
-
-
         }
+
+        return spectrum;
+    }
+
+    public void setSpectrumListener(SpectrumListener listener) {
+        this.listener = listener;
     }
 }
