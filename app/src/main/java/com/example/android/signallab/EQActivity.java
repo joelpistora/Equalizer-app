@@ -39,35 +39,13 @@ public class EQActivity extends AppCompatActivity {
 
 
         //Play, select, stop buttons are not ready.
-        //playButton = findViewById(R.id.play);
-        //stopButton = findViewById(R.id.stop);
-        //selectFileButton = findViewById(R.id.selectFile);
+        playButton = findViewById(R.id.play);
+        stopButton = findViewById(R.id.stop);
 
+        audioEngine = AudioEngine.getInstance(this);
+
+        playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
+        stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
     }
 
-    private void initalizeAudio() {
-        // Setup Output Audio
-        int trackBuffer = AudioTrack.getMinBufferSize(
-                SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
-        AudioTrack track = new AudioTrack.Builder()
-                .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                .setAudioFormat(new AudioFormat.Builder()
-                        .setSampleRate(SAMPLE_RATE)
-                        .setEncoding(AUDIO_FORMAT)
-                        .setChannelMask(CHANNEL_CONFIG)
-                        .build())
-                .setBufferSizeInBytes(trackBuffer)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build();
-
-        if (track.getState() != AudioTrack.STATE_INITIALIZED) {
-            Log.e(TAG, "AudioTrack failed to initialize");
-            track = null;
-            return;
-        }
-        Log.d(TAG, "Audio initialized successfully");
-    }
 }

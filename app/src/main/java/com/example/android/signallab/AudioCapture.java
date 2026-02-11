@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 
 import android.widget.TextView;
 
@@ -52,7 +53,6 @@ public class AudioCapture extends AppCompatActivity {
     private long recordingStartTimeMs = 0;
 
     private AudioEngine audioEngine;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,8 +211,6 @@ public class AudioCapture extends AppCompatActivity {
 
             int samplesRead = read / 2; //converting bytes to samples (number of samples=bytes/2)
 
-            Log.d(TAG, "Read samples : " + samplesRead);
-
             // Reset buffer position before reading
             byteBuffer.position(0);
             shortView.position(0);
@@ -238,6 +236,7 @@ public class AudioCapture extends AppCompatActivity {
                 if (audioBufferIndex >= audioBuffer.length) {  //frame complete(1920 shorts)
                     // Pass a copy so buffer reuse if safe
                     short[] frameCopy = audioBuffer.clone();
+                    Log.d(TAG, "Read frame : " + Arrays.toString(frameCopy));
                     onFrameReady(frameCopy);    //one full 20ms stereo frame
                     audioBufferIndex = 0;       //resetting for next frame
                 }
