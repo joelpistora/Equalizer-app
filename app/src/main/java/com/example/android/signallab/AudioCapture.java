@@ -38,12 +38,12 @@ public class AudioCapture extends AppCompatActivity {
     private Thread recordingThread;
     private ActivityResultLauncher<String> mp3Picker;
 
-    private static final int SAMPLE_RATE = 48000;
+    private static final int SAMPLE_RATE = 44100;
     private static final int BUFFER_SIZE = 1024;
     private final byte[] inBuffer = new byte[BUFFER_SIZE];//byte
     private final short[] shortBuffer = new short[BUFFER_SIZE/2];//1sample=2bytes, 512 samples
     //50 frames per second (1000/20ms)
-    private static final int AUDIO_BUFFER_SIZE = SAMPLE_RATE / 50; //48000/50=960 samples per channel per frame
+    private static final int AUDIO_BUFFER_SIZE = SAMPLE_RATE / 50; //44100/50=882 samples per channel per frame
     private final short[] audioBuffer = new short[AUDIO_BUFFER_SIZE * 2];//2 channels
     private int audioBufferIndex = 0;
     private volatile boolean isDecoding = false;
@@ -149,7 +149,7 @@ public class AudioCapture extends AppCompatActivity {
         try {//asking android for minimum safe buffer size
             int minBuffer = AudioRecord.getMinBufferSize(
                     SAMPLE_RATE, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-            record = new AudioRecord.Builder()//building AudioRecord with the required audio format (48kHz, PCM16, stereo)
+            record = new AudioRecord.Builder()//building AudioRecord with the required audio format (44,1kHz, PCM16, stereo)
                     .setAudioSource(MediaRecorder.AudioSource.MIC)
                     .setAudioFormat(new AudioFormat.Builder()
                             .setSampleRate(SAMPLE_RATE)
@@ -286,11 +286,11 @@ public class AudioCapture extends AppCompatActivity {
                 }
             }
             //-f s16le is for raw PCM 16-bit little-endian
-            //-ar 48000 is for sample rate
+            //-ar 44100 is for sample rate
             //-ac 2 is for 2 channel stereo
             java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");//decoded raw PCM
             String command = "-y -i " + inputFile.getAbsolutePath() +
-                    " -f s16le -acodec pcm_s16le -ar 48000 -ac 2 " + outputFile.getAbsolutePath();
+                    " -f s16le -acodec pcm_s16le -ar 44100 -ac 2 " + outputFile.getAbsolutePath();
             Log.d(TAG, "Running FFmpeg: " + command);
             ffmpegSession = FFmpegKit.execute(command);
             Log.d(TAG, "Decode finished, returnCode = " + ffmpegSession.getReturnCode());
@@ -306,8 +306,8 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void feedPcmFileToFrames(@NonNull java.io.File pcmFile) {
-        final int frameShorts = AUDIO_BUFFER_SIZE * 2;//960 * 2ch = 1920 short
-        final int frameBytes  = frameShorts * 2;//1920 * 2 bytes = 3840 bytes
+        final int frameShorts = AUDIO_BUFFER_SIZE * 2;//882 * 2ch = 1764 short
+        final int frameBytes  = frameShorts * 2;//1764 * 2 bytes = 3528 bytes
         byte[] pcmBytes = new byte[frameBytes];
         try (java.io.InputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(pcmFile))) {
             while (isDecoding) {
