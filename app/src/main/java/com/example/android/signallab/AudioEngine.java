@@ -1,8 +1,13 @@
 package com.example.android.signallab;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.se.omapi.Session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +27,9 @@ public class AudioEngine {
     // Audio decoding
     private MediaExtractor extractor;
     private MediaCodec decoder;
+    private Filter lowPass;
+    private Filter bandPass;
+    private Filter highPass;
 
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
@@ -41,6 +49,30 @@ public class AudioEngine {
         }
     }
 
+    private void processFrame(short[] buffer){
+        short[] processedBuffer = new short[audioBuffer.length];
+        for(int i = 0; i < audioBuffer.length; i++){
+            float sample = buffer[i];
+
+            float bass = lowPass.process(sample)*bassGain;
+            float mid = bandPass.process(sample)*midGain;
+            float treble = highPass.process(sample)*trebleGain;
+
+            //output
+            float output = bass + mid + treble;
+            processedBuffer[i] = (short) (output);
+
+        }
+
+        // TODO: Output of processed frame;
+        track.write(processedBuffer, 0, processedBuffer.length);
+    }
+    private void initializeFilter(){
+        lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 3000, 0.707, Filter.Type.HIGHPASS);
+
+    }
     public void setBassGain(float gain){
         bassGain = gain;
     }
@@ -52,3 +84,7 @@ public class AudioEngine {
     }
     
 }
+
+
+
+
