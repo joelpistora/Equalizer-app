@@ -44,8 +44,8 @@ public class AudioCapture extends AppCompatActivity {
     private final byte[] inBuffer = new byte[BUFFER_SIZE];//byte
     private final short[] shortBuffer = new short[BUFFER_SIZE/2];//1sample=2bytes, 512 samples
     //50 frames per second (1000/20ms)
-    private static final int AUDIO_BUFFER_SIZE = SAMPLE_RATE / 50; //44100/50=882 samples per channel per frame
-    private final short[] audioBuffer = new short[AUDIO_BUFFER_SIZE * 2];//2 channels
+    private static final int AUDIO_BUFFER_SIZE = SAMPLE_RATE / 50; //20ms mono frame
+    private final short[] audioBuffer = new short[AUDIO_BUFFER_SIZE]; //mono
     private int audioBufferIndex = 0;
     private volatile boolean isDecoding = false;
     private Thread decodingThread;
@@ -148,13 +148,13 @@ public class AudioCapture extends AppCompatActivity {
         if (record != null) return;
         try {//asking android for minimum safe buffer size
             int minBuffer = AudioRecord.getMinBufferSize(
-                    SAMPLE_RATE, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-            record = new AudioRecord.Builder()//building AudioRecord with the required audio format (44,1kHz, PCM16, stereo)
+                    SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            record = new AudioRecord.Builder()//building AudioRecord with the required audio format (44,1kHz, PCM16, mono)
                     .setAudioSource(MediaRecorder.AudioSource.MIC)
                     .setAudioFormat(new AudioFormat.Builder()
                             .setSampleRate(SAMPLE_RATE)
                             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                            .setChannelMask(AudioFormat.CHANNEL_IN_STEREO)
+                            .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
                             .build())
                     .setBufferSizeInBytes(minBuffer)
                     .build();
@@ -233,11 +233,11 @@ public class AudioCapture extends AppCompatActivity {
                 audioBufferIndex += toCopy;
                 offset += toCopy;
 
-                if (audioBufferIndex >= audioBuffer.length) {  //frame complete(1920 shorts)
+                if (audioBufferIndex >= audioBuffer.length) {  //frame complete
                     // Pass a copy so buffer reuse if safe
                     short[] frameCopy = audioBuffer.clone();
                     Log.d(TAG, "Read frame : " + Arrays.toString(frameCopy));
-                    onFrameReady(frameCopy);    //one full 20ms stereo frame
+                    onFrameReady(frameCopy);    //one full 20ms mono frame
                     audioBufferIndex = 0;       //resetting for next frame
                 }
             }
