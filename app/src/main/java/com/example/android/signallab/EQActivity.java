@@ -10,6 +10,8 @@ import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Arrays;
+
 public class EQActivity extends AppCompatActivity {
     private static final int REQUEST_AUDIO_FILE = 2001;
     private static final String TAG = "EQEngine";
@@ -27,6 +29,7 @@ public class EQActivity extends AppCompatActivity {
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final float MAX_GAIN = 3.0f;
     private static final float DEFAULT_GAIN = 0f;
+    private SpectrumView spectrumView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +41,11 @@ public class EQActivity extends AppCompatActivity {
         bassBar = findViewById(R.id.bassBar);
         midBar = findViewById(R.id.midBar);
         trebleBar = findViewById(R.id.trebleBar);
-//
-//        midBar.setProgress(50);    // 1.0 gain
-//        bassBar.setProgress(50);
-//        trebleBar.setProgress(50);
 
         audioEngine = AudioEngine.getInstance(this);
         visualEngine = VisualEngine.getInstance();
+
+        spectrumView = findViewById(R.id.spectrumView);
 
         //Play, select, stop buttons are not ready.
         playButton = findViewById(R.id.play);
@@ -57,8 +58,9 @@ public class EQActivity extends AppCompatActivity {
         seekBarListener();
 
         visualEngine.setSpectrumListener(spectrum -> {
+            Log.d(TAG, "Received spectrum: " + Arrays.toString(spectrum));
             runOnUiThread(() -> {
-              //  spectrumView.updateSpectrum(spectrum);
+                spectrumView.updateSpectrum(spectrum);
             });
         });
     }

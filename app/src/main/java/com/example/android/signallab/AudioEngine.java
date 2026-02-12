@@ -15,10 +15,11 @@ public class AudioEngine {
     private static AudioEngine instance;
     private final Context context;
     private List<Float> audioTrack = new ArrayList<>(); // Stores the recorded audio
+
     private AudioTrack track;
     private Thread playbackThread;
-    private volatile boolean isPlaying;
     private VisualEngine visualEngine;
+    private volatile boolean isPlaying;
     private int bufferPosition; // Current playback position
     // EQ gains
     private volatile float bassGain = 1.0f;
@@ -70,7 +71,8 @@ public class AudioEngine {
 
             //output
             float output = bass + mid + treble;
-            processedBuffer[i] = (float)Math.tanh(bass + mid + treble);
+            processedBuffer[i] = (short) (output);
+
         }
         return processedBuffer;
     }
@@ -174,7 +176,7 @@ public class AudioEngine {
 
                 // applyEQ(frame);
 
-                //visualEngine.processFrame(frame);
+                visualEngine.processFrame(frame);
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 

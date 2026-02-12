@@ -144,6 +144,17 @@
         </LinearLayout>
     </LinearLayout>
 
+    <com.example.android.signallab.SpectrumView
+        android:id="@+id/spectrumView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:background="#000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.4"/>
+
     <Button
         android:id="@+id/play"
         android:layout_width="match_parent"
