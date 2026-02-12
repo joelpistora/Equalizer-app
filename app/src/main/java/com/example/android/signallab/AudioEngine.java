@@ -36,6 +36,11 @@ public class AudioEngine {
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
 
 
+    public synchronized void clear() {
+        audioTrack.clear();
+        bufferPosition = 0;
+    }
+
     public AudioEngine(Context context) {
         this.context = context;
         initializeAudioTrack();
@@ -165,7 +170,7 @@ public class AudioEngine {
                 }
 
                 float[] processedFloatFrame = processFrame(floatFrame);
-                visualEngine.processFrame(floatFrame);
+                visualEngine.processFrame(processedFloatFrame); // here was floatFrame, but its raw audio, so I changed it
                 for(int i = 0; i < frame.length; i++) {
                     float sample = processedFloatFrame[i];
                     sample = Math.max(-1f, Math.min(1f, sample)); // Clipping
@@ -198,7 +203,6 @@ public class AudioEngine {
             playbackThread = null;
         }
     }
-
 
     public void setBassGain(float gain){
         Log.d(TAG, "setBassGain: " + gain);

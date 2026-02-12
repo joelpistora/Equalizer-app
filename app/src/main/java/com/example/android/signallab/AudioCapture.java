@@ -177,10 +177,15 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void startRecording() {//initializing AudioRecord
+        if (isRecording) return;
+
         if (record == null) {
             initializeAudio();
             if (record == null) return;
         }
+        audioBufferIndex = 0;
+        audioEngine.clear(); //clearing the recording
+
         isRecording = true;
         recordingStartTimeMs = android.os.SystemClock.elapsedRealtime();//saving start time, max 1min recording
         record.startRecording();//capturing audio from mic
@@ -245,6 +250,7 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void stopRecording() {
+        audioBufferIndex=0;
         isRecording = false;//turning recording off
         if (record != null && record.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING)
             record.stop();//stopping AudioRecord capturing from mic if its still recording

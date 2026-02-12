@@ -18,14 +18,14 @@ public class EQActivity extends AppCompatActivity {
     private AudioEngine audioEngine;
 
     private SeekBar bassBar, midBar, trebleBar;
-    private Button playButton, stopButton, selectFileButton;
+    private Button playButton, stopButton, selectFileButton, backButton;
     private AudioTrack track;
     private VisualEngine visualEngine;
     //private SpectrumView spectrumView;
     private Uri selectedAudioUri;
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final float MAX_GAIN = 3.0f;
     private static final float DEFAULT_GAIN = 0f;
@@ -50,10 +50,13 @@ public class EQActivity extends AppCompatActivity {
         //Play, select, stop buttons are not ready.
         playButton = findViewById(R.id.play);
         stopButton = findViewById(R.id.stop);
-        // TODO: Add go back to record button
+        backButton = findViewById(R.id.backButton);
 
         playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
         stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
+        backButton.setOnClickListener(v -> {audioEngine.stopPlaybackLoop();
+            finish();
+        });
 
         seekBarListener();
 
