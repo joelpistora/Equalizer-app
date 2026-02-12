@@ -148,13 +148,13 @@ public class AudioCapture extends AppCompatActivity {
         if (record != null) return;
         try {//asking android for minimum safe buffer size
             int minBuffer = AudioRecord.getMinBufferSize(
-                    SAMPLE_RATE, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+                    SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
             record = new AudioRecord.Builder()//building AudioRecord with the required audio format (44,1kHz, PCM16, stereo)
                     .setAudioSource(MediaRecorder.AudioSource.MIC)
                     .setAudioFormat(new AudioFormat.Builder()
                             .setSampleRate(SAMPLE_RATE)
                             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                            .setChannelMask(AudioFormat.CHANNEL_IN_STEREO)
+                            .setChannelMask(AudioFormat.CHANNEL_IN_MONO )
                             .build())
                     .setBufferSizeInBytes(minBuffer)
                     .build();

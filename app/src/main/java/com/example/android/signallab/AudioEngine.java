@@ -15,10 +15,10 @@ public class AudioEngine {
     private static AudioEngine instance;
     private final Context context;
     private List<Float> audioTrack = new ArrayList<>(); // Stores the recorded audio
-
     private AudioTrack track;
     private Thread playbackThread;
     private volatile boolean isPlaying;
+    private VisualEngine visualEngine;
     private int bufferPosition; // Current playback position
     // EQ gains
     private volatile float bassGain = 1.0f;
@@ -31,7 +31,7 @@ public class AudioEngine {
 
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
 
 
@@ -70,15 +70,15 @@ public class AudioEngine {
 
             //output
             float output = bass + mid + treble;
-            processedBuffer[i] = output;
+            processedBuffer[i] = (float)Math.tanh(bass + mid + treble);
         }
         return processedBuffer;
     }
 
     private void initializeFilter(){
-        lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
-        bandPass = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
-        highPass = new Filter(SAMPLE_RATE, 3000, 0.707, Filter.Type.HIGHPASS);
+        lowPass = new Filter(SAMPLE_RATE, 100, 0.707, Filter.Type.LOWPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
         Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
     private void initializeAudioTrack() {
@@ -174,7 +174,7 @@ public class AudioEngine {
 
                 // applyEQ(frame);
 
-                visualEngine.processFrame(frame);
+                //visualEngine.processFrame(frame);
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 

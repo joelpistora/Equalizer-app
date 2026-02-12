@@ -1,6 +1,5 @@
 package com.example.android.signallab;
 
-import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.net.Uri;
@@ -19,12 +18,15 @@ public class EQActivity extends AppCompatActivity {
     private SeekBar bassBar, midBar, trebleBar;
     private Button playButton, stopButton, selectFileButton;
     private AudioTrack track;
-
+    private VisualEngine visualEngine;
+    //private SpectrumView spectrumView;
     private Uri selectedAudioUri;
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
     private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+    private static final float MAX_GAIN = 3.0f;
+    private static final float DEFAULT_GAIN = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,10 @@ public class EQActivity extends AppCompatActivity {
         bassBar = findViewById(R.id.bassBar);
         midBar = findViewById(R.id.midBar);
         trebleBar = findViewById(R.id.trebleBar);
+//
+//        midBar.setProgress(50);    // 1.0 gain
+//        bassBar.setProgress(50);
+//        trebleBar.setProgress(50);
 
         audioEngine = AudioEngine.getInstance(this);
         visualEngine = VisualEngine.getInstance();
@@ -52,7 +58,7 @@ public class EQActivity extends AppCompatActivity {
 
         visualEngine.setSpectrumListener(spectrum -> {
             runOnUiThread(() -> {
-                spectrumView.updateSpectrum(spectrum);
+              //  spectrumView.updateSpectrum(spectrum);
             });
         });
     }
@@ -66,14 +72,17 @@ public class EQActivity extends AppCompatActivity {
                 int idx = seekBar.getId();
 
                 if (idx == R.id.bassBar) {
-                    audioEngine.setBassGain(progress);
-                    Log.d(TAG, "Bass gain: " + progress);
+                    float scaledGain = progress/100f * MAX_GAIN;
+                    audioEngine.setBassGain(scaledGain);
+                    Log.d(TAG, "Bass gain: " + scaledGain);
 
                 } else if (idx == R.id.midBar) {
-                    audioEngine.setMidGain(progress);
+                    float scaledGain = progress/100f * MAX_GAIN;
+                    audioEngine.setMidGain(scaledGain);
 
                 } else if (idx == R.id.trebleBar) {
-                    audioEngine.setTrebleGain(progress);
+                    float scaledGain = progress/100f * MAX_GAIN;
+                    audioEngine.setTrebleGain(scaledGain);
                 }
             }
             @Override

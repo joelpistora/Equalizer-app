@@ -51,7 +51,7 @@ public class Filter {
         double out = (b0 / a0) * x + z1;
         z1 = (b1 / a0) * x - (a1 / a0) * out + z2;
         z2 = (b2 / a0) * x - (a2 / a0) * out;
-        return (float) out;
+        return (float)  out;
     }
     public void reset(){
         z1 = 0;
