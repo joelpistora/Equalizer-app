@@ -18,7 +18,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="8dp"/>
+
+    <com.example.android.signallab.SpectrumView
+        android:id="@+id/spectrumView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:background="#000000"
+        app:layout_constraintTop_toBottomOf="@id/eqTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.3"/>
 
     <LinearLayout
         android:id="@+id/slidersContainer"
@@ -26,10 +37,10 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/eqTitle"
-        app:layout_constraintBottom_toTopOf="@id/record"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp">
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/spectrumView"
+        app:layout_constraintBottom_toTopOf="@id/play">
 
         <!-- Bass Column -->
         <LinearLayout
@@ -37,7 +48,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -49,9 +60,9 @@
 
             <SeekBar
                 android:id="@+id/bassBar"
-                android:layout_width="320dp"
-                android:layout_height="80dp"
-                android:layout_marginTop="140dp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
                 android:max="100"
                 android:progress="50"
                 android:rotation="270"
@@ -62,20 +73,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="140dp"
-                android:text="60Hz"
+                android:layout_marginTop="80dp"
+                android:text="100Hz"
                 android:textColor="#66FFFFFF"
                 android:textSize="10sp" />
         </LinearLayout>
 
         <!-- Mid Column -->
-
-        <!-- Treble Column -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -88,9 +97,9 @@
 
             <SeekBar
                 android:id="@+id/midBar"
-                android:layout_width="320dp"
-                android:layout_height="80dp"
-                android:layout_marginTop="140dp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
                 android:max="100"
                 android:progress="50"
                 android:progressDrawable="@drawable/thick_seekbar_track"
@@ -101,18 +110,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="140dp"
+                android:layout_marginTop="80dp"
                 android:text="1kHz"
                 android:textColor="#66FFFFFF"
                 android:textSize="10sp" />
         </LinearLayout>
 
+        <!-- Treble Column -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -124,9 +134,9 @@
 
             <SeekBar
                 android:id="@+id/trebleBar"
-                android:layout_width="320dp"
-                android:layout_height="80dp"
-                android:layout_marginTop="140dp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
                 android:max="100"
                 android:progress="50"
                 android:rotation="270"
@@ -137,23 +147,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="140dp"
-                android:text="10kHz"
+                android:layout_marginTop="80dp"
+                android:text="6kHz"
                 android:textColor="#66FFFFFF"
                 android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
-
-    <com.example.android.signallab.SpectrumView
-        android:id="@+id/spectrumView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:background="#000000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.4"/>
 
     <Button
         android:id="@+id/play"
@@ -178,6 +177,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

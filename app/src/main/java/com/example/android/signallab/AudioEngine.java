@@ -32,13 +32,15 @@ public class AudioEngine {
 
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
 
 
     public AudioEngine(Context context) {
         this.context = context;
         initializeAudioTrack();
+        initializeFilter();
+        Log.d(TAG, "AudioEngine initialized");
         visualEngine = VisualEngine.getInstance();
     }
 
@@ -58,8 +60,8 @@ public class AudioEngine {
         }
     }
 
-    private void processFrame(float[] buffer){
-        short[] processedBuffer = new short[buffer.length];
+    private float[] processFrame(float[] buffer){
+        float[] processedBuffer = new float[buffer.length];
         for(int i = 0; i < buffer.length; i++){
             float sample = buffer[i];
 
@@ -68,17 +70,17 @@ public class AudioEngine {
             float treble = highPass.process(sample)*trebleGain;
 
             //output
-            float output = bass + mid + treble;
-            processedBuffer[i] = (short) (output);
+            processedBuffer[i] = (float)Math.tanh(bass + mid + treble);
 
         }
-
+        return processedBuffer;
     }
-    private void initializeFilter(){
-        lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
-        bandPass = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
-        highPass = new Filter(SAMPLE_RATE, 3000, 0.707, Filter.Type.HIGHPASS);
 
+    private void initializeFilter(){
+        lowPass = new Filter(SAMPLE_RATE, 100, 0.707, Filter.Type.LOWPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
+        Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
     private void initializeAudioTrack() {
         // Setup Output Audio
@@ -158,14 +160,19 @@ public class AudioEngine {
                 // visualEngine.processFrame(frame);
 
                 // Apply EQ to frame
-                // applyEQ(frame);
-
                 float[] floatFrame = new float[frame.length];
-                for (int i = 0; i < frame.length; i++) {
+                for(int i = 0; i < frame.length; i++) {
                     floatFrame[i] = frame[i] / 32768f;
                 }
 
+                float[] processedFloatFrame = processFrame(floatFrame);
                 visualEngine.processFrame(floatFrame);
+                for(int i = 0; i < frame.length; i++) {
+                    float sample = processedFloatFrame[i];
+                    sample = Math.max(-1f, Math.min(1f, sample)); // Clipping
+                    frame[i] = (short) (sample * 32767);
+                }
+
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 
@@ -195,12 +202,15 @@ public class AudioEngine {
 
 
     public void setBassGain(float gain){
+        Log.d(TAG, "setBassGain: " + gain);
         bassGain = gain;
     }
     public void setMidGain(float gain){
+        Log.d(TAG, "setMidGain: " + gain);
         midGain = gain;
     }
     public void setTrebleGain(float gain){
+        Log.d(TAG, "setTrebleGain: " + gain);
         trebleGain = gain;
     }
 }
