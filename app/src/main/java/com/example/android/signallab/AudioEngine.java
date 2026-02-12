@@ -70,8 +70,7 @@ public class AudioEngine {
             float treble = highPass.process(sample)*trebleGain;
 
             //output
-            float output = bass + mid + treble;
-            processedBuffer[i] = (short) (output);
+            processedBuffer[i] = (float)Math.tanh(bass + mid + treble);
 
         }
         return processedBuffer;
@@ -167,16 +166,13 @@ public class AudioEngine {
                 }
 
                 float[] processedFloatFrame = processFrame(floatFrame);
-
+                visualEngine.processFrame(floatFrame);
                 for(int i = 0; i < frame.length; i++) {
                     float sample = processedFloatFrame[i];
                     sample = Math.max(-1f, Math.min(1f, sample)); // Clipping
                     frame[i] = (short) (sample * 32767);
                 }
 
-                // applyEQ(frame);
-
-                visualEngine.processFrame(frame);
 
                 Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
 
