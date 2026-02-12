@@ -75,7 +75,6 @@ public class AudioEngine {
         }
         return processedBuffer;
     }
-
     private void initializeFilter(){
         lowPass = new Filter(SAMPLE_RATE, 100, 0.707, Filter.Type.LOWPASS);
         bandPass = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
