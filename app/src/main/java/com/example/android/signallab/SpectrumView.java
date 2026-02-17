@@ -49,7 +49,7 @@ public class SpectrumView extends View {
 
         float barWidth = width / spectrum.length;
 
-        float minDb = -100f;
+        float minDb = -60f;
         float maxDb = 0f;
 
         for (int i = 0; i < spectrum.length; i++) {

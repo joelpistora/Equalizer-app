@@ -13,6 +13,8 @@ public class VisualEngine {
     public interface SpectrumListener {
         void onSpectrumReady(float[] spectrum);
     }
+    private float[] smoothSpectrum;
+    private static final float SMOOTHING_ALPHA = 0.85f;
 
     private SpectrumListener listener;
     private static VisualEngine instance;
@@ -66,16 +68,15 @@ public class VisualEngine {
 
             float db = 20f * (float) Math.log10(mag + 1e-9f);
             spectrum[i] = db;
-
         }
-
-        // Temporary fake FFT for testing
-//        float[] fakeSpectrum = new float[64];
-//        for (int i = 0; i < fakeSpectrum.length; i++) {
-//            fakeSpectrum[i] = (float) Math.random();
-//        }
-//        return fakeSpectrum;
-        return spectrum.clone();
+        if(smoothSpectrum == null){
+            smoothSpectrum = spectrum.clone();
+        } else{
+            for (int i = 0; i < spectrum.length; i++) {
+                smoothSpectrum[i] = SMOOTHING_ALPHA * smoothSpectrum[i] + (1 - SMOOTHING_ALPHA) * spectrum[i];
+            }
+        }
+        return smoothSpectrum.clone();
     }
 
     public void setSpectrumListener(SpectrumListener listener) {
