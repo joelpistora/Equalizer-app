@@ -55,26 +55,8 @@ public class SpectrumView extends View {
         float width = getWidth();
         float height = getHeight();
 
-        Paint labelPaint = new Paint();
-        labelPaint.setColor(Color.WHITE);
-        labelPaint.setTextSize(24f);
-
         float minDb = -60f;
         float maxDb = 0f;
-
-        // Draw Y-axis labels
-        for (int db = 0; db >= minDb; db -= 10) {
-            float y = height * (1 - (db - minDb) / (maxDb - minDb));
-            canvas.drawText(db + "dB", 0, y, labelPaint);
-        }
-
-        // X-axis labels (linear for now)
-        int[] freqs = {20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000};
-
-        for (int f : freqs) {
-            float x = freqToXLog(f, width, 20f, 20000f);
-            canvas.drawText(f + "Hz", x, height, labelPaint);
-        }
 
         float sampleRate = 44100f;       // or whatever your AudioEngine uses
         int fftSize = spectrum.length * 2; // assuming real+imaginary FFT bins are half
