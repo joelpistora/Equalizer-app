@@ -28,7 +28,7 @@ public class SpectrumView extends View {
     }
 
     private void init() {
-        paint.setColor(Color.GREEN);
+        paint.setColor(Color.parseColor("#24a335")); // nice orange
         paint.setStrokeWidth(4f);
         paint.setAntiAlias(true);
     }
@@ -37,6 +37,14 @@ public class SpectrumView extends View {
         this.spectrum = spectrum;
         invalidate(); // triggers redraw
     }
+
+    private float freqToXLog(float freq, float canvasWidth, float minFreq, float maxFreq) {
+        float logMin = (float) Math.log10(minFreq);
+        float logMax = (float) Math.log10(maxFreq);
+        float logF = (float) Math.log10(freq);
+        return ((logF - logMin) / (logMax - logMin)) * canvasWidth;
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -47,23 +55,38 @@ public class SpectrumView extends View {
         float width = getWidth();
         float height = getHeight();
 
-        float barWidth = width / spectrum.length;
+        Paint labelPaint = new Paint();
+        labelPaint.setColor(Color.WHITE);
+        labelPaint.setTextSize(24f);
 
-        float minDb = -100f;
+        float minDb = -60f;
         float maxDb = 0f;
 
+        // Draw Y-axis labels
+        for (int db = 0; db >= minDb; db -= 10) {
+            float y = height * (1 - (db - minDb) / (maxDb - minDb));
+            canvas.drawText(db + "dB", 0, y, labelPaint);
+        }
+
+        // X-axis labels (linear for now)
+        int[] freqs = {20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000};
+
+        for (int f : freqs) {
+            float x = freqToXLog(f, width, 20f, 20000f);
+            canvas.drawText(f + "Hz", x, height, labelPaint);
+        }
+
+        float sampleRate = 44100f;       // or whatever your AudioEngine uses
+        int fftSize = spectrum.length * 2; // assuming real+imaginary FFT bins are half
         for (int i = 0; i < spectrum.length; i++) {
+            float freq = i * sampleRate / fftSize; // bin to Hz
+            float x = freqToXLog(freq, width, 20f, 20000f);
+
             float normalized = (spectrum[i] - minDb) / (maxDb - minDb);
             normalized = Math.max(0f, Math.min(1f, normalized));
+            float barHeight = normalized * height;
 
-            float value = normalized * height;
-            canvas.drawLine(
-                    i * barWidth,
-                    height,
-                    i * barWidth,
-                    height - value,
-                    paint
-            );
+            canvas.drawLine(x, height, x, height - barHeight, paint);
         }
     }
 }
