@@ -67,7 +67,7 @@ public class RecorderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recorder);
+        //setContentView(R.layout.activity_recorder);
 
         Button startButton = findViewById(R.id.record);
         Button stopButton = findViewById(R.id.stop);

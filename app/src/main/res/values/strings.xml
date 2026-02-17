@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">Signal Lab</string>
-    <string name="videoButton">Video Lab</string>
-    <string name="audioButton">Audio Lab</string>
-    <string name="accButton">Accelerometer Lab</string>
+    <string name="app_name">EQ App</string>
     <string name="startButton">Start</string>
     <string name="stopButton">Stop</string>
     <string name="audioRec">Recording</string>
@@ -10,7 +7,7 @@
     <string name="stop_button">Stop</string>
     <string name="start_button">Start</string>
     <string name="import_mp3_button">Import MP3</string>
-    <string name="recording_indicator" />
-
-
+    <string name="recording_indicator">Recording…</string>
+    <string name="title_screen">Start recording or upload MP3</string>
+    <string name="after_recording">Recording finished! Proceed to EQ or create new audio.</string>
 </resources>

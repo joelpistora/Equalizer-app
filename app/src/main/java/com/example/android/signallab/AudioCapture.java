@@ -34,6 +34,10 @@ public class AudioCapture extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1001;
     private static final long MAX_RECORDING_MS = 60_000; //max recording duration 1 min
     private TextView recordingIndicator;
+    private Button startButton;
+    private Button stopButton;
+    private Button MP3Button;
+    private Button EQButton;
     private AudioRecord record;
     private volatile boolean isRecording = false;
     private Thread recordingThread;
@@ -59,11 +63,11 @@ public class AudioCapture extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_capture);
 
-        Button startButton = findViewById(R.id.record);
-        Button stopButton = findViewById(R.id.stop);
-        Button openEqButton = findViewById(R.id.cont);
-
-
+        recordingIndicator = findViewById(R.id.recordingIndicator); // Recording status text
+        startButton = findViewById(R.id.record);                    // Start Button
+        stopButton = findViewById(R.id.stop);                       // Stop Button
+        MP3Button = findViewById(R.id.importMp3);                   // MP3 Button
+        EQButton = findViewById(R.id.cont);                         // EQ Button
 
         startButton.setOnClickListener(v -> startRecording());
 
@@ -72,7 +76,7 @@ public class AudioCapture extends AppCompatActivity {
             stopDecoding();//allows user to manually stop Mp3 decoding
         });
 
-        openEqButton.setOnClickListener(v -> {
+        EQButton.setOnClickListener(v -> {
                     Intent intent = new Intent(AudioCapture.this,
                             EQActivity.class);
                     startActivity(intent);
@@ -80,7 +84,6 @@ public class AudioCapture extends AppCompatActivity {
 
         audioEngine = AudioEngine.getInstance(this);
 
-        recordingIndicator = findViewById(R.id.recordingIndicator);//recording status
         mp3Picker = registerForActivityResult(//when user selects a file, onMp3Selected is called
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -88,12 +91,13 @@ public class AudioCapture extends AppCompatActivity {
                     onMp3Selected(uri);//starts decoding pipeline(FFmped-PCMframes)
                 }
         );
-        Button importButton = findViewById(R.id.importMp3);//import mp3 button
-        importButton.setOnClickListener(v -> {//stops any active audio source before importing a new one
+
+        MP3Button.setOnClickListener(v -> {//stops any active audio source before importing a new one
             stopRecording();
             stopDecoding();
             mp3Picker.launch("audio/mpeg");
         });
+
         checkAndRequestPermissions();
     }
 
@@ -183,6 +187,7 @@ public class AudioCapture extends AppCompatActivity {
             initializeAudio();
             if (record == null) return;
         }
+
         audioBufferIndex = 0;
         audioEngine.clear(); //clearing the recording
 
@@ -191,7 +196,22 @@ public class AudioCapture extends AppCompatActivity {
         record.startRecording();//capturing audio from mic
         recordingThread = new Thread(this::recordLoop);//background loop that reads audio continuously
         recordingThread.start();
-        runOnUiThread(() -> recordingIndicator.setVisibility(View.VISIBLE));//UI shows recording indicator
+
+        recordingIndicator.setText(getResources().getText(R.string.recording_indicator));
+        recordingIndicator.setTextColor(getResources().getColor(R.color.colorAccent));
+
+        startButton.setEnabled(false);
+        startButton.setAlpha(0.5f);
+
+        EQButton.setEnabled(false);
+        EQButton.setAlpha(0.5f);
+
+        MP3Button.setEnabled(false);
+        MP3Button.setAlpha(0.5f);
+
+        stopButton.setEnabled(true);
+        stopButton.setAlpha(1);
+
         Log.d(TAG, "Started recording");
     }
 
@@ -262,7 +282,21 @@ public class AudioCapture extends AppCompatActivity {
         }
         Log.d(TAG, "Stopped recording");
         recordingThread = null;
-        runOnUiThread(() -> recordingIndicator.setVisibility(View.GONE));//hiding UI recording indicator
+
+        recordingIndicator.setText(getResources().getText(R.string.after_recording));
+        recordingIndicator.setTextColor(getResources().getColor(R.color.colorGreen));
+
+        startButton.setEnabled(true);
+        startButton.setAlpha(1);
+
+        stopButton.setEnabled(false);
+        stopButton.setAlpha(0.5f);
+
+        EQButton.setEnabled(true);
+        EQButton.setAlpha(1);
+
+        MP3Button.setEnabled(true);
+        MP3Button.setAlpha(1);
     }
 
 

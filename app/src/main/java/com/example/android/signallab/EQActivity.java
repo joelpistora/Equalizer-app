@@ -18,10 +18,8 @@ public class EQActivity extends AppCompatActivity {
     private AudioEngine audioEngine;
 
     private SeekBar bassBar, midBar, trebleBar;
-    private Button playButton, stopButton, selectFileButton, backButton;
+    private Button playButton, stopButton, backButton;
     private AudioTrack track;
-    private VisualEngine visualEngine;
-    //private SpectrumView spectrumView;
     private Uri selectedAudioUri;
     // Chosen parameters
     private static final int SAMPLE_RATE = 44100; // target sample rate
@@ -43,7 +41,7 @@ public class EQActivity extends AppCompatActivity {
         trebleBar = findViewById(R.id.trebleBar);
 
         audioEngine = AudioEngine.getInstance(this);
-        visualEngine = VisualEngine.getInstance();
+        VisualEngine visualEngine = VisualEngine.getInstance();
 
         spectrumView = findViewById(R.id.spectrumView);
 
@@ -52,9 +50,10 @@ public class EQActivity extends AppCompatActivity {
         stopButton = findViewById(R.id.stop);
         backButton = findViewById(R.id.backButton);
 
-        playButton.setOnClickListener(v -> audioEngine.startPlaybackLoop());
-        stopButton.setOnClickListener(v -> audioEngine.stopPlaybackLoop());
-        backButton.setOnClickListener(v -> {audioEngine.stopPlaybackLoop();
+        playButton.setOnClickListener(v -> startPlayBack());
+        stopButton.setOnClickListener(v -> stopPlayBack());
+        backButton.setOnClickListener(v -> {
+            stopPlayBack();
             finish();
         });
 
@@ -66,6 +65,22 @@ public class EQActivity extends AppCompatActivity {
                 spectrumView.updateSpectrum(spectrum);
             });
         });
+    }
+
+    private void startPlayBack() {
+        playButton.setEnabled(false);
+        playButton.setAlpha(0.5f);
+        stopButton.setEnabled(true);
+        stopButton.setAlpha(1);
+        audioEngine.startPlaybackLoop();
+    }
+
+    private void stopPlayBack() {
+        playButton.setEnabled(true);
+        playButton.setAlpha(1);
+        stopButton.setEnabled(false);
+        stopButton.setAlpha(0.5f);
+        audioEngine.stopPlaybackLoop();
     }
 
     private void seekBarListener() {
