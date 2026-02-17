@@ -49,11 +49,14 @@ public class SpectrumView extends View {
 
         float barWidth = width / spectrum.length;
 
-        float max = 1e-9f;
-        for (float v : spectrum) if (v > max) max = v;
+        float minDb = -100f;
+        float maxDb = 0f;
 
         for (int i = 0; i < spectrum.length; i++) {
-            float value = (spectrum[i] / max) * height; //added normalization
+            float normalized = (spectrum[i] - minDb) / (maxDb - minDb);
+            normalized = Math.max(0f, Math.min(1f, normalized));
+
+            float value = normalized * height;
             canvas.drawLine(
                     i * barWidth,
                     height,

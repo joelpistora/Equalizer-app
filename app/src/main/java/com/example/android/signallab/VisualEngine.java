@@ -59,8 +59,14 @@ public class VisualEngine {
         }
         fft.complexForward(fft_buffer);
         for (int i = 0; i < FFT_SIZE / 2; i++) {
-            spectrum[i] = (float) Math.sqrt(fft_buffer[2 * i] * fft_buffer[2 * i]
-                    + fft_buffer[2 * i + 1] * fft_buffer[2 * i + 1]);
+            float re = fft_buffer[2 * i];
+            float im = fft_buffer[2 * i + 1];
+
+            float mag = (float) Math.sqrt(re * re + im * im);
+
+            float db = 20f * (float) Math.log10(mag + 1e-9f);
+            spectrum[i] = db;
+
         }
 
         // Temporary fake FFT for testing

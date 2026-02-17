@@ -153,9 +153,7 @@ public class AudioEngine {
                     bufferPosition = 0; // loop playback
                     remaining = buffer.length;
                 }
-
                 int toWrite = Math.min(frameSize, remaining);
-
                 // Copy frame
                 short[] frame = new short[toWrite];
                 System.arraycopy(buffer, bufferPosition, frame, 0, toWrite);
