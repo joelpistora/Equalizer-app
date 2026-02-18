@@ -90,6 +90,11 @@ public class AudioEngine {
         highPass = new Filter(SAMPLE_RATE, 9000, 0.707, Filter.Type.HIGHPASS);
         Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
+    private void resetFilters() {
+        if (lowPass != null) lowPass.reset();
+        if (bandPass != null) bandPass.reset();
+        if (highPass != null) highPass.reset();
+    }
     private void initializeAudioTrack() {
         // Setup Output Audio
         int trackBuffer = AudioTrack.getMinBufferSize(
@@ -144,6 +149,8 @@ public class AudioEngine {
         isPlaying = true;
         bufferPosition = 0;
 
+        resetFilters();
+
         Log.d(TAG, "Starting playback loop");
 
         track.play(); // start the AudioTrack
@@ -156,6 +163,7 @@ public class AudioEngine {
                 if (remaining <= 0) {
                     bufferPosition = 0; // loop playback
                     remaining = buffer.length;
+                    resetFilters();
                 }
                 int toWrite = Math.min(frameSize, remaining);
                 // Copy frame
@@ -204,6 +212,7 @@ public class AudioEngine {
             }
             playbackThread = null;
         }
+        resetFilters();
     }
 
     public void setBassGain(float gain){

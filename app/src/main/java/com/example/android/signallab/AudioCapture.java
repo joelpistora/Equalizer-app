@@ -326,10 +326,10 @@ public class AudioCapture extends AppCompatActivity {
             }
             //-f s16le is for raw PCM 16-bit little-endian
             //-ar 44100 is for sample rate
-            //-ac 2 is for 2 channel stereo
+            //-ac 1 is for MONO
             java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");//decoded raw PCM
             String command = "-y -i " + inputFile.getAbsolutePath() +
-                    " -f s16le -acodec pcm_s16le -ar 44100 -ac 2 " + outputFile.getAbsolutePath();
+                    " -f s16le -acodec pcm_s16le -ar 44100 -ac 1 " + outputFile.getAbsolutePath();
             Log.d(TAG, "Running FFmpeg: " + command);
             ffmpegSession = FFmpegKit.execute(command);
             Log.d(TAG, "Decode finished, returnCode = " + ffmpegSession.getReturnCode());
@@ -345,13 +345,13 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void feedPcmFileToFrames(@NonNull java.io.File pcmFile) {
-        final int frameShorts = AUDIO_BUFFER_SIZE * 2;//882 * 2ch = 1764 short
-        final int frameBytes  = frameShorts * 2;//1764 * 2 bytes = 3528 bytes
+        final int frameShorts = AUDIO_BUFFER_SIZE; //882
+        final int frameBytes  = frameShorts * 2; //882 * 2 bytes = 1764 bytes
         byte[] pcmBytes = new byte[frameBytes];
         try (java.io.InputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(pcmFile))) {
             while (isDecoding) {
                 int total = 0;
-                while (total < frameBytes) {//reading full frame(3840 bytes)
+                while (total < frameBytes) {//reading full frame(1764 bytes)
                     int n = in.read(pcmBytes, total, frameBytes - total);
                     if (n < 0) { //file ended
                         isDecoding = false;
