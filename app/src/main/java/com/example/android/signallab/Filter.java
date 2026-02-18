@@ -20,6 +20,7 @@ public class Filter {
         double omega = 2 * Math.PI * freq / SampleRate;
         double alpha = Math.sin(omega) / (2*q);
         double cosw = Math.cos(omega);
+        double sinw = Math.sin(omega);
 
         switch(type) {
             case LOWPASS:

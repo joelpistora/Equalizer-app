@@ -70,20 +70,24 @@ public class AudioEngine {
         for(int i = 0; i < buffer.length; i++){
             float sample = buffer[i];
 
-            float bass = lowPass.process(sample)*bassGain;
-            float mid = bandPass.process(sample)*midGain;
-            float treble = highPass.process(sample)*trebleGain;
+            float bass = lowPass.process(sample);
+            float mid = bandPass.process(sample);
+            float treble = highPass.process(sample);
 
-            //output
-            processedBuffer[i] = (float)Math.tanh(bass + mid + treble);
+            // cascade
 
+            float bass_bass = lowPass.process(bass)*bassGain;
+            float mid_mid = bandPass.process(mid)*midGain;
+            float treble_treble = highPass.process(treble)*trebleGain;
+            
+            processedBuffer[i] = (float)Math.tanh(bass_bass + mid_mid + treble_treble);
         }
         return processedBuffer;
     }
     private void initializeFilter(){
-        lowPass = new Filter(SAMPLE_RATE, 100, 0.707, Filter.Type.LOWPASS);
-        bandPass = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
-        highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
+        lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 10, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 9000, 0.707, Filter.Type.HIGHPASS);
         Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
     private void initializeAudioTrack() {
