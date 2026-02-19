@@ -42,6 +42,8 @@ public class EQActivity extends AppCompatActivity {
 
         audioEngine = AudioEngine.getInstance(this);
         VisualEngine visualEngine = VisualEngine.getInstance();
+        //TEMPORARY WHITE NOISE
+        audioEngine.generateWhiteNoise(5f,0.05f);
 
         spectrumView = findViewById(R.id.spectrumView);
 

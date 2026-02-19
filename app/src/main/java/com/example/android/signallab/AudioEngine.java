@@ -40,6 +40,19 @@ public class AudioEngine {
         audioTrack.clear();
         bufferPosition = 0;
     }
+    //WHITE NOISE FOR TESTING
+    public synchronized void generateWhiteNoise(float seconds, float amplitude) {
+        clear();
+
+        int totalSamples = (int)(SAMPLE_RATE * seconds);
+
+        for (int i = 0; i < totalSamples; i++) {
+            float sample = (float)(Math.random() * 2.0 - 1.0);
+            sample *= amplitude;
+            audioTrack.add(sample);
+        }
+    }
+
 
     public AudioEngine(Context context) {
         this.context = context;
@@ -87,7 +100,7 @@ public class AudioEngine {
     private void initializeFilter(){
         lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
         bandPass = new Filter(SAMPLE_RATE, 1000, 10, Filter.Type.BANDPASS);
-        highPass = new Filter(SAMPLE_RATE, 9000, 0.707, Filter.Type.HIGHPASS);
+        highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
         Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
     private void resetFilters() {
