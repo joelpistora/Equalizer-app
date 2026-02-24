@@ -71,7 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:text="@string/import_mp3_button"
-        android:enabled="false"
+        android:enabled="true"
         android:backgroundTint="@color/colorPrimary"
         android:textColor="#000000"
         android:textStyle="bold"
