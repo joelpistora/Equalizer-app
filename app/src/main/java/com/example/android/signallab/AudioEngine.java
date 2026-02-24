@@ -22,7 +22,7 @@ public class AudioEngine {
     private volatile boolean isPlaying;
     private volatile boolean isPaused;
     private final Object pauseLock = new Object();
-    private int bufferPosition; // Current playback position
+    private volatile int bufferPosition; // Current playback position
     // EQ gains
     private volatile float bassGain = 1.0f;
     private volatile float midGain = 1.0f;
@@ -181,6 +181,7 @@ public class AudioEngine {
 
         isPlaying = true;
         bufferPosition = 0;
+        int totalSamples = buffer.length;
 
         resetFilters();
 
@@ -225,7 +226,11 @@ public class AudioEngine {
                 }
 
                 float[] processedFloatFrame = processFrame(floatFrame);
-                visualEngine.processFrame(processedFloatFrame); // here was floatFrame, but its raw audio, so I changed it
+                visualEngine.processFrame(
+                        processedFloatFrame,
+                        bufferPosition,
+                        totalSamples
+                ); // here was floatFrame, but its raw audio, so I changed it
                 for (int i = 0; i < frame.length; i++) {
                     float sample = processedFloatFrame[i];
                     sample = Math.max(-1f, Math.min(1f, sample)); // Clipping

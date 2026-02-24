@@ -13,10 +13,15 @@ public class VisualEngine {
     public interface SpectrumListener {
         void onSpectrumReady(float[] spectrum);
     }
+
+    public interface ProgressListener {
+        void onProgressReady(float progress);   // 0.0 - 1.0
+    }
     private float[] smoothSpectrum;
     private static final float SMOOTHING_ALPHA = 0.85f;
 
     private SpectrumListener listener;
+    private ProgressListener progressListener;
     private static VisualEngine instance;
 
     private static final int FFT_SIZE = 1024;
@@ -37,7 +42,7 @@ public class VisualEngine {
         return instance;
     }
 
-    public void processFrame(float[] buffer) {
+    public void processFrame(float[] buffer, int bufferPosition, int totalSamples) {
 
         float[] padded = new float [FFT_SIZE];
         int n = Math.min(buffer.length, FFT_SIZE);
@@ -48,6 +53,11 @@ public class VisualEngine {
         if (listener != null) {
             Log.d(TAG, "Spectrum ready: " + Arrays.toString(fftResult));
             listener.onSpectrumReady(fftResult);
+        }
+
+        if (progressListener != null && totalSamples > 0) {
+            float progress = (float) bufferPosition / totalSamples;
+            progressListener.onProgressReady(progress);
         }
     }
 
@@ -81,5 +91,9 @@ public class VisualEngine {
 
     public void setSpectrumListener(SpectrumListener listener) {
         this.listener = listener;
+    }
+
+    public void setProgressListener(ProgressListener listener) {
+        this.progressListener = listener;
     }
 }
