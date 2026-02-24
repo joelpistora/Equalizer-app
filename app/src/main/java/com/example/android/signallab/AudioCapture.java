@@ -317,6 +317,8 @@ public class AudioCapture extends AppCompatActivity {
         isDecoding = true;//enabling decoding loop
         decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));//background thread for decoding
         decodingThread.start();
+        audioBufferIndex = 0;
+        audioEngine.clear();
     }
 
     private void decodeMp3ToPcmFile(@NonNull Uri uri) {
