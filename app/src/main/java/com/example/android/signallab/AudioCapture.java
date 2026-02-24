@@ -380,7 +380,6 @@ public class AudioCapture extends AppCompatActivity {
             ffmpegSession = null;
         }
         decodingThread = null;
-        audioEngine.clear();
     }
 
     private void onFrameReady(short[] audioBuffer) {
