@@ -102,7 +102,7 @@ public class SpectrumView extends View {
         }
 
         // Y ticks (dB) - using your minDb/maxDb
-        float[] yTicks = new float[]{0f, -20f, -40f, -60f};
+        float[] yTicks = new float[]{20f, 0f, -20f, -40f};
         for (float db : yTicks) {
             float t = (db - minDb) / (maxDb - minDb);
             t = Math.max(0f, Math.min(1f, t));
