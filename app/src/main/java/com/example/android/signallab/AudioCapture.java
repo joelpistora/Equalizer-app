@@ -105,9 +105,15 @@ public class AudioCapture extends AppCompatActivity {
     protected void onResume() {//rechecking mic permissions & then AudioRecord
         super.onResume();
         checkAndRequestPermissions();
+        resetUI();
     }
 
-    @Override
+    private void resetUI() {
+        recordingIndicator.setText(getResources().getText(R.string.title_screen));
+        recordingIndicator.setTextColor(getResources().getColor(R.color.colorText));
+    }
+
+        @Override
     protected void onPause() {//stoping all audio work
         stopRecording();
         stopDecoding();
@@ -380,7 +386,6 @@ public class AudioCapture extends AppCompatActivity {
             ffmpegSession = null;
         }
         decodingThread = null;
-        audioEngine.clear();
     }
 
     private void onFrameReady(short[] audioBuffer) {
