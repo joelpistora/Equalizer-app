@@ -43,7 +43,7 @@ public class EQActivity extends AppCompatActivity {
         audioEngine = AudioEngine.getInstance(this);
         VisualEngine visualEngine = VisualEngine.getInstance();
         //TEMPORARY WHITE NOISE
-        audioEngine.generateWhiteNoise(5f,0.05f);
+        //audioEngine.generateWhiteNoise(5f,0.05f);
 
         spectrumView = findViewById(R.id.spectrumView);
 
@@ -53,7 +53,7 @@ public class EQActivity extends AppCompatActivity {
         backButton = findViewById(R.id.backButton);
 
         playButton.setOnClickListener(v -> startPlayBack());
-        stopButton.setOnClickListener(v -> stopPlayBack());
+        stopButton.setOnClickListener(v -> pausePlayBack());
         backButton.setOnClickListener(v -> {
             stopPlayBack();
             finish();
@@ -77,6 +77,14 @@ public class EQActivity extends AppCompatActivity {
         stopButton.setEnabled(true);
         stopButton.setAlpha(1);
         audioEngine.startPlaybackLoop();
+    }
+
+    private void pausePlayBack() {
+        playButton.setEnabled(true);
+        playButton.setAlpha(1);
+        stopButton.setEnabled(false);
+        stopButton.setAlpha(0.5f);
+        audioEngine.pausePlaybackLoop();
     }
 
     private void stopPlayBack() {
