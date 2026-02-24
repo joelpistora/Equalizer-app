@@ -89,10 +89,14 @@ public class AudioEngine {
 
             // cascade
 
-            float bass_bass = lowPass.process(bass)*bassGain;
-            float mid_mid = bandPass.process(mid)*midGain;
-            float treble_treble = highPass.process(treble)*trebleGain;
-            
+            float bass_bass = (bass)*bassGain;
+            float mid_mid = (mid)*midGain;
+            float treble_treble = (treble)*trebleGain;
+
+//            float bass_bass = lowPass.process(bass)*bassGain;
+//            float mid_mid = bandPass.process(mid)*midGain;
+//            float treble_treble = highPass.process(treble)*trebleGain;
+
             processedBuffer[i] = (float)Math.tanh(bass_bass + mid_mid + treble_treble);
         }
         return processedBuffer;
