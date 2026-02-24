@@ -311,6 +311,8 @@ public class AudioCapture extends AppCompatActivity {
         isDecoding = true;//enabling decoding loop
         decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));//background thread for decoding
         decodingThread.start();
+        audioBufferIndex = 0;
+        audioEngine.clear();
     }
 
     private void decodeMp3ToPcmFile(@NonNull Uri uri) {
@@ -378,6 +380,7 @@ public class AudioCapture extends AppCompatActivity {
             ffmpegSession = null;
         }
         decodingThread = null;
+        audioEngine.clear();
     }
 
     private void onFrameReady(short[] audioBuffer) {
