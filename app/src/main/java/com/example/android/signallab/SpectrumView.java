@@ -73,8 +73,8 @@ public class SpectrumView extends View {
         float plotBottom = height - 60f;
         float plotWidth = plotRight - plotLeft;
 
-        float minDb = -60f;
-        float maxDb = 0f;
+        float minDb = -40f;
+        float maxDb = 20f;
 
         float sampleRate = 44100f;       // or whatever your AudioEngine uses
         int fftSize = spectrum.length * 2; // assuming real+imaginary FFT bins are half
