@@ -28,6 +28,7 @@ public class AudioEngine {
 
     private Filter lowPass;
     private Filter bandPass;
+    private Filter bandPass2;
     private Filter highPass;
 
     // Chosen parameters
@@ -89,9 +90,12 @@ public class AudioEngine {
 
             // cascade
 
+            // cascade again
+
             float bass_bass = (bass)*bassGain;
             float mid_mid = (mid)*midGain;
             float treble_treble = (treble)*trebleGain;
+
 
 //            float bass_bass = lowPass.process(bass)*bassGain;
 //            float mid_mid = bandPass.process(mid)*midGain;
@@ -103,8 +107,13 @@ public class AudioEngine {
     }
     private void initializeFilter(){
         lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
-        bandPass = new Filter(SAMPLE_RATE, 1000, 10, Filter.Type.BANDPASS);
+        bandPass = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
+        bandPass2 = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
         highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
+
+
+
+
         Log.d(TAG, "Filters initialized: LP=200Hz, BP=1000Hz, HP=3000Hz");
     }
     private void resetFilters() {
