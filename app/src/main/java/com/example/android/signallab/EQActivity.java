@@ -56,6 +56,7 @@ public class EQActivity extends AppCompatActivity {
         stopButton.setOnClickListener(v -> stopPlayBack());
         backButton.setOnClickListener(v -> {
             stopPlayBack();
+            audioEngine.clear();
             finish();
         });
 
