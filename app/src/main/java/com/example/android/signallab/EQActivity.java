@@ -85,18 +85,27 @@ public class EQActivity extends AppCompatActivity {
     }
 
     private void startPlayBack() {
-        playButton.setEnabled(false);
-        playButton.setAlpha(0.5f);
-        stopButton.setEnabled(true);
-        stopButton.setAlpha(1);
+        runOnUiThread(() -> {
+            playButton.setEnabled(false);
+            playButton.setAlpha(0.5f);
+            stopButton.setEnabled(true);
+            stopButton.setAlpha(1);
+
+            //playButton.post(() -> audioEngine.startPlaybackLoop());
+
+//            playButton.invalidate();
+//            stopButton.invalidate();
+        });
         audioEngine.startPlaybackLoop();
     }
 
     private void pausePlayBack() {
-        playButton.setEnabled(true);
-        playButton.setAlpha(1);
-        stopButton.setEnabled(false);
-        stopButton.setAlpha(0.5f);
+        runOnUiThread(() -> {
+            playButton.setEnabled(true);
+            playButton.setAlpha(1);
+            stopButton.setEnabled(false);
+            stopButton.setAlpha(0.5f);
+        });
         audioEngine.pausePlaybackLoop();
     }
 
