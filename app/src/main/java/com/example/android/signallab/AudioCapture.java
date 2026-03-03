@@ -77,9 +77,9 @@ public class AudioCapture extends AppCompatActivity {
         });
 
         EQButton.setOnClickListener(v -> {
-                    Intent intent = new Intent(AudioCapture.this,
-                            EQActivity.class);
-                    startActivity(intent);
+            Intent intent = new Intent(AudioCapture.this,
+                    EQActivity.class);
+            startActivity(intent);
         });
 
         audioEngine = AudioEngine.getInstance(this);
@@ -391,4 +391,7 @@ public class AudioCapture extends AppCompatActivity {
     private void onFrameReady(short[] audioBuffer) {
         audioEngine.appendBuffer(audioBuffer); // same format for MIC and MP3
     }
+    private void updateEQButton() {
+    }
+
 }
