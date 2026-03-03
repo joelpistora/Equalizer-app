@@ -22,7 +22,10 @@ public class AudioEngine {
     private volatile boolean isPlaying;
     private volatile boolean isPaused;
     private final Object pauseLock = new Object();
-    private int bufferPosition; // Current playback position
+    private volatile int bufferPosition; // Current playback position
+    // Class fields
+    private short[] buffer;       // audio buffer
+    private int totalSamples;     // total length of buffer
     // EQ gains
     private volatile float bassGain = 1.0f;
     private volatile float midGain = 1.0f;
@@ -41,6 +44,8 @@ public class AudioEngine {
 
     public synchronized void clear() {
         audioTrack.clear();
+        track = null;
+        buffer = null;
         bufferPosition = 0;
     }
     //WHITE NOISE FOR TESTING
@@ -166,30 +171,48 @@ public class AudioEngine {
             pauseLock.notifyAll();
         }
 
+        // Initialize track if needed
         if (track == null) {
-            initializeAudioTrack(); // create AudioTrack if needed
-            Log.d(TAG, "Track is null, need to initialize audio track");
+            initializeAudioTrack();
         }
+
         if (audioTrack == null || audioTrack.isEmpty()) {
             Log.d(TAG, "Nothing to play");
             return; // nothing to play
         }
 
-        short[] buffer = convertToShortArray(audioTrack);
+        // Initialize buffer if not done yet
+        if (buffer == null || buffer.length == 0) {
+            buffer = convertToShortArray(audioTrack);
+            if (buffer == null || buffer.length == 0) {
+                Log.d(TAG, "Buffer is empty after conversion, cannot play");
+                return;
+            }
+            totalSamples = buffer.length;
+            bufferPosition = 0;
+            Log.d(TAG, "Buffer initialized, totalSamples=" + totalSamples);
+        }
 
-        if (isPlaying) return; // already playing
+        // Already playing? just resume
+        if (isPlaying) {
+            if (isPaused) {
+                isPaused = false;
+                synchronized (pauseLock) {
+                    pauseLock.notifyAll();
+                }
+            }
+            return; // thread already running
+        }
 
         isPlaying = true;
-        bufferPosition = 0;
 
         resetFilters();
-
         Log.d(TAG, "Starting playback loop");
 
-        track.play(); // start the AudioTrack
+        track.play();
 
         playbackThread = new Thread(() -> {
-            int frameSize = 1024; // number of samples per write
+            int frameSize = 1024;
             while (isPlaying) {
 
                 synchronized (pauseLock) {
@@ -197,52 +220,42 @@ public class AudioEngine {
                         try {
                             pauseLock.wait();
                         } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt(); // restore interrupt flag
-                            return; // exit thread safely
+                            Thread.currentThread().interrupt();
+                            return;
                         }
                     }
                 }
 
-                // Calculate remaining samples
                 int remaining = buffer.length - bufferPosition;
                 if (remaining <= 0) {
-                    bufferPosition = 0; // loop playback
+                    bufferPosition = 0; // loop
                     remaining = buffer.length;
-                    //resetFilters();
                 }
+
                 int toWrite = Math.min(frameSize, remaining);
-                // Copy frame
                 short[] frame = new short[toWrite];
                 System.arraycopy(buffer, bufferPosition, frame, 0, toWrite);
 
-                // Possibly visualize the raw audio as well before the EQ
-                // visualEngine.processFrame(frame);
+                // Process
+                float[] floatFrame = new float[toWrite];
+                for (int i = 0; i < toWrite; i++) floatFrame[i] = frame[i] / 32768f;
 
-                // Apply EQ to frame
-                float[] floatFrame = new float[frame.length];
-                for (int i = 0; i < frame.length; i++) {
-                    floatFrame[i] = frame[i] / 32768f;
-                }
+                float[] processedFrame = processFrame(floatFrame);
+                visualEngine.processFrame(processedFrame, bufferPosition, totalSamples);
 
-                float[] processedFloatFrame = processFrame(floatFrame);
-                visualEngine.processFrame(processedFloatFrame); // here was floatFrame, but its raw audio, so I changed it
-                for (int i = 0; i < frame.length; i++) {
-                    float sample = processedFloatFrame[i];
-                    sample = Math.max(-1f, Math.min(1f, sample)); // Clipping
+                for (int i = 0; i < toWrite; i++) {
+                    float sample = Math.max(-1f, Math.min(1f, processedFrame[i]));
                     frame[i] = (short) (sample * 32767);
                 }
 
-
-                Log.d(TAG, "Playing audio: " + Arrays.toString(frame));
-
-                // Write to AudioTrack
                 track.write(frame, 0, toWrite);
-
                 bufferPosition += toWrite;
             }
+
             track.pause();
             track.flush();
         });
+
         playbackThread.start();
     }
 

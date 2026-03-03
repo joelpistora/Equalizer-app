@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ public class EQActivity extends AppCompatActivity {
 
     private SeekBar bassBar, midBar, trebleBar;
     private Button playButton, stopButton, backButton;
+    private ProgressBar progressBar;
     private AudioTrack track;
     private Uri selectedAudioUri;
     // Chosen parameters
@@ -39,6 +41,9 @@ public class EQActivity extends AppCompatActivity {
         bassBar = findViewById(R.id.bassBar);
         midBar = findViewById(R.id.midBar);
         trebleBar = findViewById(R.id.trebleBar);
+
+        progressBar = findViewById(R.id.progressBar);
+
 
         audioEngine = AudioEngine.getInstance(this);
         VisualEngine visualEngine = VisualEngine.getInstance();
@@ -70,20 +75,36 @@ public class EQActivity extends AppCompatActivity {
                 spectrumView.updateSpectrum(spectrum);
             });
         });
+
+        visualEngine.setProgressListener(progress -> {
+            Log.d(TAG, "Progress: " + progress);
+            runOnUiThread(() -> {
+                progressBar.setProgress((int)(progress * 100));
+            });
+        });
     }
     private void startPlayBack() {
-        playButton.setEnabled(false);
-        playButton.setAlpha(0.5f);
-        stopButton.setEnabled(true);
-        stopButton.setAlpha(1);
+        runOnUiThread(() -> {
+            playButton.setEnabled(false);
+            playButton.setAlpha(0.5f);
+            stopButton.setEnabled(true);
+            stopButton.setAlpha(1);
+
+            //playButton.post(() -> audioEngine.startPlaybackLoop());
+
+//            playButton.invalidate();
+//            stopButton.invalidate();
+        });
         audioEngine.startPlaybackLoop();
     }
 
     private void pausePlayBack() {
-        playButton.setEnabled(true);
-        playButton.setAlpha(1);
-        stopButton.setEnabled(false);
-        stopButton.setAlpha(0.5f);
+        runOnUiThread(() -> {
+            playButton.setEnabled(true);
+            playButton.setAlpha(1);
+            stopButton.setEnabled(false);
+            stopButton.setAlpha(0.5f);
+        });
         audioEngine.pausePlaybackLoop();
     }
 

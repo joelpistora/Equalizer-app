@@ -314,6 +314,8 @@ public class AudioCapture extends AppCompatActivity {
     private void startMp3DecodeToPcm(@NonNull Uri uri) {
         stopRecording();//ensuring only one audio source runs at a time
         stopDecoding();
+        recordingIndicator.setText(getResources().getText(R.string.loading));
+        recordingIndicator.setTextColor(getResources().getColor(R.color.colorRed));
         isDecoding = true;//enabling decoding loop
         decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));//background thread for decoding
         decodingThread.start();
@@ -363,6 +365,8 @@ public class AudioCapture extends AppCompatActivity {
                     int n = in.read(pcmBytes, total, frameBytes - total);
                     if (n < 0) { //file ended
                         isDecoding = false;
+                        recordingIndicator.setText(getResources().getText(R.string.ready));
+                        recordingIndicator.setTextColor(getResources().getColor(R.color.colorGreen));
                         return;
                     }
                     total += n;
@@ -386,6 +390,7 @@ public class AudioCapture extends AppCompatActivity {
             ffmpegSession = null;
         }
         decodingThread = null;
+
     }
 
     private void onFrameReady(short[] audioBuffer) {
