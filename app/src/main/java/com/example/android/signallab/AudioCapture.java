@@ -58,6 +58,9 @@ public class AudioCapture extends AppCompatActivity {
 
     private AudioEngine audioEngine;
 
+    private boolean isUploading = false;
+    private boolean hasUploaded = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +95,25 @@ public class AudioCapture extends AppCompatActivity {
                 }
         );
 
-        MP3Button.setOnClickListener(v -> {//stops any active audio source before importing a new one
-            stopRecording();
-            stopDecoding();
+        MP3Button.setOnClickListener(v -> {
+
+            recordingIndicator.setText(getResources().getText(R.string.uploading));
+            recordingIndicator.setTextColor(getResources().getColor(R.color.colorRed));
+
+            startButton.setEnabled(false);
+            startButton.setAlpha(0.5f);
+
+            EQButton.setEnabled(false);
+            EQButton.setAlpha(0.5f);
+
+            MP3Button.setEnabled(false);
+            MP3Button.setAlpha(0.5f);
+
+            stopButton.setEnabled(false);
+            stopButton.setAlpha(0.5f);
+
+            isUploading = true;
+
             mp3Picker.launch("audio/mpeg");
         });
 
@@ -105,7 +124,9 @@ public class AudioCapture extends AppCompatActivity {
     protected void onResume() {//rechecking mic permissions & then AudioRecord
         super.onResume();
         checkAndRequestPermissions();
-        resetUI();
+        if (!(isUploading)) {
+            resetUI();
+        }
     }
 
     private void resetUI() {
@@ -114,10 +135,13 @@ public class AudioCapture extends AppCompatActivity {
     }
 
         @Override
-    protected void onPause() {//stoping all audio work
-        stopRecording();
-        stopDecoding();
-        releaseAudio();
+    protected void onPause() { //stoping all audio work
+        Log.d(TAG, "onPause IS CALLED");
+        if (!(isUploading)) {
+            releaseAudio();
+            stopRecording();
+            stopDecoding();
+        }
         super.onPause();
     }
 
@@ -138,6 +162,7 @@ public class AudioCapture extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy IS CALLED");
         super.onDestroy();
         stopRecording();
         stopDecoding();
@@ -188,6 +213,8 @@ public class AudioCapture extends AppCompatActivity {
 
     private void startRecording() {//initializing AudioRecord
         if (isRecording) return;
+
+        hasUploaded = false;
 
         if (record == null) {
             initializeAudio();
@@ -289,6 +316,10 @@ public class AudioCapture extends AppCompatActivity {
         Log.d(TAG, "Stopped recording");
         recordingThread = null;
 
+        if (hasUploaded) {
+                return;
+        }
+
         recordingIndicator.setText(getResources().getText(R.string.after_recording));
         recordingIndicator.setTextColor(getResources().getColor(R.color.colorGreen));
 
@@ -312,12 +343,16 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void startMp3DecodeToPcm(@NonNull Uri uri) {
-        stopRecording();//ensuring only one audio source runs at a time
-        stopDecoding();
-        recordingIndicator.setText(getResources().getText(R.string.loading));
-        recordingIndicator.setTextColor(getResources().getColor(R.color.colorRed));
-        isDecoding = true;//enabling decoding loop
-        decodingThread = new Thread(() -> decodeMp3ToPcmFile(uri));//background thread for decoding
+        isDecoding = true; //enabling decoding loop
+        decodingThread = new Thread(() -> {
+            decodeMp3ToPcmFile(uri);
+
+            // Notify when done
+            runOnUiThread(() -> {
+                finishUploading();
+            });
+        }); // Background thread for decoding
+
         decodingThread.start();
         audioBufferIndex = 0;
         audioEngine.clear();
@@ -352,6 +387,31 @@ public class AudioCapture extends AppCompatActivity {
         catch (Exception e) {
             Log.e(TAG, "decodeMp3ToPcmFile error", e);
         }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    private void finishUploading() {
+        recordingIndicator.setText(getResources().getText(R.string.ready));
+        recordingIndicator.setTextColor(getResources().getColor(R.color.colorGreen));
+
+        startButton.setEnabled(true);
+        startButton.setAlpha(1);
+
+        stopButton.setEnabled(false);
+        stopButton.setAlpha(0.5f);
+
+        EQButton.setEnabled(true);
+        EQButton.setAlpha(1);
+
+        MP3Button.setEnabled(true);
+        MP3Button.setAlpha(1);
+
+        hasUploaded = true;
+        isUploading = false;
     }
 
     private void feedPcmFileToFrames(@NonNull java.io.File pcmFile) {
@@ -365,8 +425,6 @@ public class AudioCapture extends AppCompatActivity {
                     int n = in.read(pcmBytes, total, frameBytes - total);
                     if (n < 0) { //file ended
                         isDecoding = false;
-                        recordingIndicator.setText(getResources().getText(R.string.ready));
-                        recordingIndicator.setTextColor(getResources().getColor(R.color.colorGreen));
                         return;
                     }
                     total += n;

@@ -11,6 +11,7 @@
     <string name="title_screen">Start recording or upload MP3</string>
     <string name="after_recording">Recording finished! Proceed to EQ or create new audio.</string>
     <string name="loading">Loading...</string>
-    <string name="ready">Ready!</string>
+    <string name="uploading">Importing Audio...</string>
+    <string name="ready">Upload finished! Proceed to EQ or create new audio.</string>
 
 </resources>
