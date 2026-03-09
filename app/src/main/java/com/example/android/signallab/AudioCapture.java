@@ -359,39 +359,39 @@ public class AudioCapture extends AppCompatActivity {
     }
 
     private void decodeMp3ToPcmFile(@NonNull Uri uri) {
-        try {
-            java.io.File inputFile = new java.io.File(getCacheDir(), "input.mp3");//FFmpegKit works easiest with file paths
-            try (java.io.InputStream in = getContentResolver().openInputStream(uri);
-                 java.io.OutputStream out = new java.io.FileOutputStream(inputFile)) {
-                byte[] buffer = new byte[8192];//temporary buffer for copying Mp3 stream (8KB is standard IO size)
-                int read;
-                while ((read = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, read);
-                }
-            }
-            //-f s16le is for raw PCM 16-bit little-endian
-            //-ar 44100 is for sample rate
-            //-ac 1 is for MONO
-            java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");//decoded raw PCM
-            String command = "-y -i " + inputFile.getAbsolutePath() +
-                    " -f s16le -acodec pcm_s16le -ar 44100 -ac 1 " + outputFile.getAbsolutePath();
-            Log.d(TAG, "Running FFmpeg: " + command);
-            ffmpegSession = FFmpegKit.execute(command);
-            Log.d(TAG, "Decode finished, returnCode = " + ffmpegSession.getReturnCode());
-            ffmpegSession = null;
-            if (!isDecoding) return;//if user pressed stop during decode- exit
-            if (!outputFile.exists()) return;//if decode failed -exit
-            Log.d(TAG, "PCM file path = " + outputFile.getAbsolutePath());//read decoded PCM and feed frames into onFrameReady()
-            feedPcmFileToFrames(outputFile);
-        }
-        catch (Exception e) {
-            Log.e(TAG, "decodeMp3ToPcmFile error", e);
-        }
 //        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
+//            java.io.File inputFile = new java.io.File(getCacheDir(), "input.mp3");//FFmpegKit works easiest with file paths
+//            try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+//                 java.io.OutputStream out = new java.io.FileOutputStream(inputFile)) {
+//                byte[] buffer = new byte[8192];//temporary buffer for copying Mp3 stream (8KB is standard IO size)
+//                int read;
+//                while ((read = in.read(buffer)) > 0) {
+//                    out.write(buffer, 0, read);
+//                }
+//            }
+//            //-f s16le is for raw PCM 16-bit little-endian
+//            //-ar 44100 is for sample rate
+//            //-ac 1 is for MONO
+//            java.io.File outputFile = new java.io.File(getCacheDir(), "decoded.pcm");//decoded raw PCM
+//            String command = "-y -i " + inputFile.getAbsolutePath() +
+//                    " -f s16le -acodec pcm_s16le -ar 44100 -ac 1 " + outputFile.getAbsolutePath();
+//            Log.d(TAG, "Running FFmpeg: " + command);
+//            ffmpegSession = FFmpegKit.execute(command);
+//            Log.d(TAG, "Decode finished, returnCode = " + ffmpegSession.getReturnCode());
+//            ffmpegSession = null;
+//            if (!isDecoding) return;//if user pressed stop during decode- exit
+//            if (!outputFile.exists()) return;//if decode failed -exit
+//            Log.d(TAG, "PCM file path = " + outputFile.getAbsolutePath());//read decoded PCM and feed frames into onFrameReady()
+//            feedPcmFileToFrames(outputFile);
 //        }
+//        catch (Exception e) {
+//            Log.e(TAG, "decodeMp3ToPcmFile error", e);
+//        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void finishUploading() {
