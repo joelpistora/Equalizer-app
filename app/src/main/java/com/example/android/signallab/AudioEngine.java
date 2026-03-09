@@ -116,8 +116,8 @@ public class AudioEngine {
     private void initializeFilter(){
         lowPass = new Filter(SAMPLE_RATE, 200, 0.707, Filter.Type.LOWPASS);
         bandPass = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
-        bandPass2 = new Filter(SAMPLE_RATE, 1000, 1, Filter.Type.BANDPASS);
-        highPass = new Filter(SAMPLE_RATE, 6000, 7, Filter.Type.HIGHPASS);
+        bandPass2 = new Filter(SAMPLE_RATE, 1000, 0.707, Filter.Type.BANDPASS);
+        highPass = new Filter(SAMPLE_RATE, 6000, 0.707, Filter.Type.HIGHPASS);
 
 
 
